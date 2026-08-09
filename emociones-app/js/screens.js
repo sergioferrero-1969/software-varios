@@ -8,7 +8,7 @@ Screens.wire = {};
 /* ---------- Bienvenida ---------- */
 Screens.welcome = () => `
   <div class="screen screen-welcome">
-    <div class="mascot-duo">${Mascots.dog('idle')}${Mascots.cat('idle')}</div>
+    <div class="mascot-duo">${MASCOT_SPECIES.map((s) => Mascots.guideMood(s.id, 'idle')).join('')}</div>
     <h1>Mis Emociones</h1>
     <p class="subtitle">Un espacio para hablar de cómo nos sentimos</p>
     <button class="btn btn-primary btn-lg" id="btn-enter">Ingresar</button>
@@ -52,14 +52,17 @@ Screens.wire.pin = (state, { go }) => {
 /* ---------- Lista de pacientes ---------- */
 Screens.patientList = () => {
   const patients = Store.getPatients().sort((a, b) => a.name.localeCompare(b.name));
-  const items = patients.map((p) => `
+  const items = patients.map((p) => {
+    const mascot = p.mascotPref ? getMascotSpecies(p.mascotPref) : null;
+    return `
     <div class="patient-card" data-id="${p.id}">
       <div class="patient-card-info">
         <strong>${p.name}</strong>
-        <span>${p.age ? p.age + ' años' : ''} ${p.mascotPref ? '· ' + (p.mascotPref === 'dog' ? '🐶' : '🐱') : ''}</span>
+        <span>${p.age ? p.age + ' años' : ''} ${mascot ? '· ' + mascot.emoji : ''}</span>
       </div>
       <button class="btn btn-sm view-patient" data-id="${p.id}">Ver ficha</button>
-    </div>`).join('') || '<p class="empty">Todavía no hay pacientes cargados.</p>';
+    </div>`;
+  }).join('') || '<p class="empty">Todavía no hay pacientes cargados.</p>';
 
   return `
   <div class="screen screen-pro">
@@ -219,7 +222,7 @@ Screens.wire.patientDetail = (state, { go }) => {
     }
   };
   document.getElementById('btn-start-session').onclick = () => App.startSession(state.detailId);
-  document.getElementById('btn-report').onclick = () => go('reportPreview', { detailId: state.detailId });
+  document.getElementById('btn-report').onclick = () => go('reportPreview', { detailId: state.detailId, reportFrom: null, reportTo: null });
   document.querySelectorAll('.delete-record').forEach((btn) => {
     btn.onclick = (e) => {
       e.preventDefault();
@@ -232,26 +235,61 @@ Screens.wire.patientDetail = (state, { go }) => {
 };
 
 /* ---------- Vista previa de reporte ---------- */
+function filteredReportRecords(state) {
+  const patient = Store.getPatient(state.detailId);
+  let records = Store.getRecords(patient.id);
+  if (state.reportFrom) {
+    const from = new Date(state.reportFrom + 'T00:00:00');
+    records = records.filter((r) => new Date(r.timestamp) >= from);
+  }
+  if (state.reportTo) {
+    const to = new Date(state.reportTo + 'T23:59:59');
+    records = records.filter((r) => new Date(r.timestamp) <= to);
+  }
+  return records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+}
+
 Screens.reportPreview = (state) => {
   const patient = Store.getPatient(state.detailId);
-  const records = Store.getRecords(patient.id).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const allPatients = Store.getPatients().sort((a, b) => a.name.localeCompare(b.name));
+  const records = filteredReportRecords(state);
   const text = records.map((r) => `${Report.formatDate(r.timestamp)} — ${getEmotion(r.emotion).label}\n${Report.generateNarrative(patient, r)}`).join('\n\n');
+  const totalCount = Store.getRecords(patient.id).length;
   return `
   <div class="screen screen-pro">
     <button class="btn btn-sm" id="btn-back">← Ficha de ${patient.name}</button>
-    <h2>Reporte de ${patient.name}</h2>
-    <p class="muted">Revisá y editá el texto en Word antes de compartirlo con la familia.</p>
-    <pre class="report-preview">${text || 'Todavía no hay registros.'}</pre>
+    <h2>Reporte</h2>
+    <div class="form-row">
+      <label>Paciente
+        <select id="filter-patient">
+          ${allPatients.map((p) => `<option value="${p.id}" ${p.id === patient.id ? 'selected' : ''}>${p.name}</option>`).join('')}
+        </select>
+      </label>
+      <label>Desde
+        <input type="date" id="filter-from" value="${state.reportFrom || ''}" />
+      </label>
+      <label>Hasta
+        <input type="date" id="filter-to" value="${state.reportTo || ''}" />
+      </label>
+    </div>
+    ${(state.reportFrom || state.reportTo) ? `<div class="row"><button class="btn btn-sm" id="btn-clear-filter">Quitar filtro de fecha</button></div>` : ''}
+    <p class="muted">Mostrando ${records.length} de ${totalCount} registro(s). Revisá y editá el texto en Word antes de compartirlo con la familia.</p>
+    <pre class="report-preview">${text || 'No hay registros para este filtro.'}</pre>
     <button class="btn btn-primary btn-lg" id="btn-export-word" ${records.length ? '' : 'disabled'}>⬇ Descargar como Word</button>
   </div>`;
 };
 Screens.wire.reportPreview = (state, { go }) => {
   document.getElementById('btn-back').onclick = () => go('patientDetail', { detailId: state.detailId });
+  document.getElementById('filter-patient').onchange = (e) => go('reportPreview', { detailId: e.target.value });
+  document.getElementById('filter-from').onchange = (e) => go('reportPreview', { reportFrom: e.target.value || null });
+  document.getElementById('filter-to').onchange = (e) => go('reportPreview', { reportTo: e.target.value || null });
+  const clearBtn = document.getElementById('btn-clear-filter');
+  if (clearBtn) clearBtn.onclick = () => go('reportPreview', { reportFrom: null, reportTo: null });
   const exportBtn = document.getElementById('btn-export-word');
   if (exportBtn) {
     exportBtn.onclick = () => {
       const patient = Store.getPatient(state.detailId);
-      const records = Store.getRecords(patient.id);
+      const records = filteredReportRecords(state);
       WordExport.exportPatientReport(patient, records);
     };
   }
@@ -262,8 +300,8 @@ Screens.childMascotSelect = () => `
   <div class="screen screen-child">
     <h2>¿Con quién querés jugar hoy?</h2>
     <div class="mascot-choice">
-      <button class="mascot-card" data-mascot="dog">${Mascots.dog('idle')}<span>Firulais</span></button>
-      <button class="mascot-card" data-mascot="cat">${Mascots.cat('idle')}<span>Michi</span></button>
+      ${MASCOT_SPECIES.map((s) => `
+        <button class="mascot-card" data-mascot="${s.id}">${Mascots.guideMood(s.id, 'idle')}<span>${s.name}</span></button>`).join('')}
     </div>
   </div>`;
 Screens.wire.childMascotSelect = (state, { go }) => {
@@ -278,7 +316,7 @@ Screens.wire.childMascotSelect = (state, { go }) => {
 function speechBubble(state, text) {
   return `
   <div class="speech-row">
-    <div class="mascot-small">${Mascots.bySpecies(state.session.mascot, 'talking')}</div>
+    <div class="mascot-small">${Mascots.guideMood(state.session.mascot, 'talking')}</div>
     <div class="bubble">${text}</div>
   </div>`;
 }
@@ -290,7 +328,7 @@ Screens.childEmotion = (state) => `
     <div class="emotion-grid">
       ${EMOTIONS.map((e) => `
         <button class="emotion-btn" data-id="${e.id}">
-          ${Mascots.emotionFace(e)}
+          ${Mascots.moodPhoto(state.session.mascot, e.id, e.label)}
           <span>${e.label}</span>
         </button>`).join('')}
     </div>
@@ -448,7 +486,7 @@ Screens.wire.childFreeText = (state, { saveAnswerAndNext }) => {
 /* ---------- Cierre ---------- */
 Screens.childThanks = (state) => `
   <div class="screen screen-child screen-thanks">
-    <div class="mascot-big">${Mascots.bySpecies(state.session.mascot, 'happy')}</div>
+    <div class="mascot-big">${Mascots.guideMood(state.session.mascot, 'happy')}</div>
     <h2>¡Gracias por contarme cómo te sentís!</h2>
     <p>Nos vemos la próxima 💛</p>
     <button class="btn btn-primary btn-lg" id="btn-end">Terminar</button>

@@ -67,8 +67,9 @@ p { line-height: 1.4; }
 
 /* ---------- Bienvenida / PIN ---------- */
 .screen-welcome, .screen-pin { align-items: center; text-align: center; justify-content: center; }
-.mascot-duo { display: flex; gap: 10px; width: 260px; }
-.mascot-duo .mascot { width: 130px; height: 130px; }
+.mascot-duo { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; max-width: 340px; }
+.mascot-duo .mascot { width: 110px; height: 110px; }
+.mascot, .emotion-face { width: 100%; height: 100%; object-fit: contain; display: block; }
 .pin-input {
   font-size: 28px;
   letter-spacing: 10px;
@@ -163,9 +164,10 @@ p { line-height: 1.4; }
 
 .emotion-grid, .option-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 200px));
   gap: 16px;
   width: 100%;
+  justify-content: center;
 }
 .emotion-btn {
   background: #fff;
@@ -235,12 +237,13 @@ p { line-height: 1.4; }
 .screen-thanks { justify-content: center; gap: 20px; }
 .mascot-big { width: 220px; height: 220px; }
 
-/* Animación simple de "hablar" para la mascota */
-.mood-talking .mouth-closed { animation: talk 1s infinite; transform-origin: center; }
-@keyframes talk { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-.mood-happy .mouth-open, .mood-happy .tongue { display: block !important; }
-.mood-happy .mouth-closed { display: none !important; }
+/* Animación simple para la mascota mientras "habla" en las burbujas */
+.mascot-bounce { animation: mascot-bounce 1.4s ease-in-out infinite; }
+@keyframes mascot-bounce {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-4px) rotate(-2deg); }
+}
 
 @media (max-width: 480px) {
-  .emotion-grid, .option-grid { grid-template-columns: repeat(2, 1fr); }
+  .emotion-grid, .option-grid { grid-template-columns: repeat(2, minmax(0, 160px)); }
 }

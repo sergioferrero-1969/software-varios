@@ -9,7 +9,6 @@ const EMOTIONS = [
     gender: 'f',
     color: '#FFC93C',
     dark: '#C98B00',
-    face: { eyes: 'happy', mouth: 'smile-big', extra: 'cheeks' },
     thoughts: [
       { id: 'genial', label: 'Que todo está genial' },
       { id: 'orgulloso', label: 'Que hice algo bien' },
@@ -23,7 +22,6 @@ const EMOTIONS = [
     gender: 'f',
     color: '#4C9AFF',
     dark: '#1F5FBF',
-    face: { eyes: 'sad', mouth: 'frown', extra: 'tear' },
     thoughts: [
       { id: 'solo', label: 'Que estoy solo/a' },
       { id: 'perdi', label: 'Que perdí algo importante' },
@@ -37,7 +35,6 @@ const EMOTIONS = [
     gender: 'm',
     color: '#FF5C5C',
     dark: '#B72A2A',
-    face: { eyes: 'angry', mouth: 'grit', extra: null },
     thoughts: [
       { id: 'injusto', label: 'Que fue injusto' },
       { id: 'no_escuchan', label: 'Que no me escuchan' },
@@ -51,7 +48,6 @@ const EMOTIONS = [
     gender: 'm',
     color: '#9B7EDE',
     dark: '#5B3FA0',
-    face: { eyes: 'scared', mouth: 'o-small', extra: 'sweat' },
     thoughts: [
       { id: 'algo_malo', label: 'Que iba a pasar algo malo' },
       { id: 'me_lastimo', label: 'Que me podía lastimar' },
@@ -65,7 +61,6 @@ const EMOTIONS = [
     gender: 'f',
     color: '#FF9F45',
     dark: '#C4600A',
-    face: { eyes: 'wide', mouth: 'o-big', extra: null },
     thoughts: [
       { id: 'no_esperaba', label: 'Que no me lo esperaba para nada' },
       { id: 'raro', label: 'Que fue algo raro' },
@@ -79,7 +74,6 @@ const EMOTIONS = [
     gender: 'm',
     color: '#7BC96F',
     dark: '#3C7A32',
-    face: { eyes: 'squint', mouth: 'zigzag', extra: null },
     thoughts: [
       { id: 'feo', label: 'Que algo estaba feo o mal' },
       { id: 'no_quiero_cerca', label: 'Que no quería eso cerca mío' },
@@ -87,7 +81,70 @@ const EMOTIONS = [
       { id: 'nada', label: 'No pensé nada, solo lo sentí' },
     ],
   },
+  {
+    id: 'verguenza',
+    label: 'Vergüenza',
+    gender: 'f',
+    color: '#F49AC2',
+    dark: '#B84A78',
+    thoughts: [
+      { id: 'todos_mirando', label: 'Que todos me estaban mirando' },
+      { id: 'hice_ridiculo', label: 'Que hice el ridículo' },
+      { id: 'quiero_esconderme', label: 'Que quería esconderme' },
+      { id: 'nada', label: 'No pensé nada, solo me dio vergüenza' },
+    ],
+  },
+  {
+    id: 'ansiedad',
+    label: 'Ansiedad',
+    gender: 'f',
+    color: '#E0A93E',
+    dark: '#8C6A1B',
+    thoughts: [
+      { id: 'algo_va_a_pasar', label: 'Que algo malo iba a pasar' },
+      { id: 'no_puedo_esperar', label: 'Que no podía esperar más' },
+      { id: 'demasiadas_cosas', label: 'Que tenía demasiadas cosas en la cabeza' },
+      { id: 'nada', label: 'No pensé nada en especial, solo me sentí inquieto/a' },
+    ],
+  },
+  {
+    id: 'envidia',
+    label: 'Envidia',
+    gender: 'f',
+    color: '#6FBF8B',
+    dark: '#2E7A4F',
+    thoughts: [
+      { id: 'quiero_lo_mismo', label: 'Que yo también quería eso' },
+      { id: 'no_es_justo', label: 'Que no es justo que lo tenga otro/a' },
+      { id: 'quiero_ser_como', label: 'Que quiero ser como esa persona' },
+      { id: 'nada', label: 'No pensé nada, solo lo sentí' },
+    ],
+  },
+  {
+    id: 'timidez',
+    label: 'Timidez',
+    gender: 'f',
+    color: '#C9A6E0',
+    dark: '#7A4FA0',
+    thoughts: [
+      { id: 'me_van_a_mirar', label: 'Que me iban a mirar' },
+      { id: 'no_se_que_decir', label: 'Que no iba a saber qué decir' },
+      { id: 'mejor_no_hablar', label: 'Que era mejor quedarme calladito/a' },
+      { id: 'nada', label: 'No pensé nada, solo me dio timidez' },
+    ],
+  },
 ];
+
+const MASCOT_SPECIES = [
+  { id: 'dog', name: 'Firulais', emoji: '🐶', hasNeutral: true },
+  { id: 'cat', name: 'Michi', emoji: '🐱', hasNeutral: false },
+  { id: 'bear', name: 'Osín', emoji: '🐻', hasNeutral: true },
+  { id: 'rabbit', name: 'Coni', emoji: '🐰', hasNeutral: false },
+];
+
+function getMascotSpecies(id) {
+  return MASCOT_SPECIES.find((m) => m.id === id);
+}
 
 const BODY_PARTS = [
   { id: 'cabeza', label: 'Cabeza' },
