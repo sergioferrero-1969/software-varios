@@ -365,14 +365,13 @@ Screens.childBody = (state) => `
   <div class="screen screen-child">
     ${speechBubble(state, '¿En qué parte de tu cuerpo la sentís? Tocá el dibujo.')}
     <div class="body-map-wrap">${Mascots.bodyMap(null)}</div>
-    <div class="body-legend">
-      ${BODY_PARTS.map((b) => `<span data-part="${b.id}">${b.label}</span>`).join('')}
-    </div>
+    <button class="link-btn" id="btn-cuerpo-entero">Cuerpo entero</button>
   </div>`;
 Screens.wire.childBody = (state, { saveAnswerAndNext }) => {
   document.querySelectorAll('.zone').forEach((zone) => {
     zone.addEventListener('click', () => saveAnswerAndNext('bodyPart', zone.dataset.part, 'childTrigger'));
   });
+  document.getElementById('btn-cuerpo-entero').onclick = () => saveAnswerAndNext('bodyPart', 'todo', 'childTrigger');
 };
 
 /* ---------- Disparador ---------- */
@@ -489,12 +488,12 @@ Screens.childThanks = (state) => `
     <div class="mascot-big">${Mascots.guideMood(state.session.mascot, 'happy')}</div>
     <h2>¡Gracias por contarme cómo te sentís!</h2>
     ${state.hasFollowUpActivity
-      ? '<p class="thanks-followup">¡Ahora vamos a trabajar juntos sobre eso!</p>'
+      ? '<button class="btn-followup" id="btn-followup">¡Ahora vamos a trabajar juntos sobre eso!</button>'
       : '<p>Nos vemos la próxima 💛</p><button class="btn btn-primary btn-lg" id="btn-end">Terminar</button>'}
   </div>`;
 Screens.wire.childThanks = (state, { go }) => {
   if (state.hasFollowUpActivity) {
-    setTimeout(() => go('childActivity'), 2600);
+    document.getElementById('btn-followup').onclick = () => go('childActivity');
   } else {
     document.getElementById('btn-end').onclick = () => App.endSession();
   }

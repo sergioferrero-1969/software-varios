@@ -158,15 +158,6 @@ function getActivity(emotionId) {
   return ACTIVITIES[emotionId] || null;
 }
 
-const BODY_PARTS = [
-  { id: 'cabeza', label: 'Cabeza' },
-  { id: 'pecho', label: 'Pecho / Corazón' },
-  { id: 'panza', label: 'Panza' },
-  { id: 'manos', label: 'Manos / Brazos' },
-  { id: 'piernas', label: 'Piernas' },
-  { id: 'todo', label: 'Todo el cuerpo' },
-];
-
 const TRIGGERS = [
   { id: 'familia', label: 'Con mi familia', icon: '🏠' },
   { id: 'escuela', label: 'En la escuela', icon: '🎒' },

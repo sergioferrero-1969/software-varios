@@ -187,7 +187,7 @@
 
     <div class="nivel">
       <span>calma</span>
-      <input type="range" class="slider" id="slider" min="0" max="10" step="1" value="0" aria-label="Nivel de miedo">
+      <input type="range" class="slider" id="slider" min="0" max="10" step="1" value="10" aria-label="Nivel de miedo">
       <span>miedo</span>
     </div>
 
@@ -234,8 +234,8 @@ const ACCIONES_MIEDO = [
    ================================================================ */
 const estado = {
   fase: "sacar",
-  intensidad: 0,
-  pico: 0,
+  intensidad: 10,
+  pico: 10,
   queLoAyudo: null
 };
 
@@ -293,7 +293,7 @@ function sacudir() {
 }
 
 /* ------------------ LA BARRA DESLIZANTE ------------------ */
-let ultimoNivel = 0;
+let ultimoNivel = 10;
 function moverBarra() {
   if (estado.fase === "cierre") { el.slider.value = estado.intensidad; return; }
   const val = parseInt(el.slider.value, 10);
@@ -365,7 +365,14 @@ function elegirAyuda(id) {
   el.registro.textContent =
     "Guardado en la ficha: llegó a " + resultado.intensidadMaxima +
     "/10 · lo ayudó " + resultado.queLoAyudoNombre.toLowerCase();
-  dibujar();
+
+  // El cierre siempre muestra al monstruo ya calmado y amigable,
+  // más allá de en qué nivel haya quedado la barrita.
+  el.feo.setAttribute("opacity", "0");
+  el.lindo.setAttribute("opacity", "1");
+  el.luz.setAttribute("opacity", "0.9");
+  el.cuarto.setAttribute("fill", colorCuarto(0));
+  el.slider.value = 0;
 }
 
 /* ================================================================
