@@ -146,6 +146,18 @@ function getMascotSpecies(id) {
   return MASCOT_SPECIES.find((m) => m.id === id);
 }
 
+/* Actividades de calma (HTML autónomo, embebido en iframe) por emoción.
+   Las que no están acá simplemente no muestran este paso extra. */
+const ACTIVITIES = {
+  enojo: 'activities/enojo.html',
+  miedo: 'activities/miedo.html',
+  tristeza: 'activities/tristeza.html',
+};
+
+function getActivity(emotionId) {
+  return ACTIVITIES[emotionId] || null;
+}
+
 const BODY_PARTS = [
   { id: 'cabeza', label: 'Cabeza' },
   { id: 'pecho', label: 'Pecho / Corazón' },

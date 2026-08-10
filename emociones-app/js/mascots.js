@@ -26,13 +26,13 @@ const Mascots = {
     const sel = (part) => (selected === part ? 'selected' : '');
     return `
     <svg viewBox="0 0 220 320" class="body-map" xmlns="http://www.w3.org/2000/svg">
-      <circle class="zone ${sel('cabeza')}" data-part="cabeza" cx="110" cy="45" r="38"/>
-      <rect class="zone ${sel('pecho')}" data-part="pecho" x="72" y="90" width="76" height="55" rx="18"/>
-      <rect class="zone ${sel('panza')}" data-part="panza" x="76" y="150" width="68" height="55" rx="18"/>
-      <rect class="zone ${sel('manos')}" data-part="manos" x="10" y="95" width="50" height="110" rx="22"/>
-      <rect class="zone ${sel('manos')}" data-part="manos" x="160" y="95" width="50" height="110" rx="22"/>
-      <rect class="zone ${sel('piernas')}" data-part="piernas" x="78" y="210" width="26" height="100" rx="13"/>
-      <rect class="zone ${sel('piernas')}" data-part="piernas" x="116" y="210" width="26" height="100" rx="13"/>
+      <circle class="zone ${sel('cabeza')}" data-part="cabeza" cx="110" cy="42" r="37"/>
+      <rect class="zone ${sel('pecho')}" data-part="pecho" x="72" y="93" width="76" height="52" rx="20"/>
+      <rect class="zone ${sel('panza')}" data-part="panza" x="76" y="155" width="68" height="48" rx="20"/>
+      <rect class="zone ${sel('manos')}" data-part="manos" x="8" y="98" width="50" height="112" rx="25"/>
+      <rect class="zone ${sel('manos')}" data-part="manos" x="162" y="98" width="50" height="112" rx="25"/>
+      <rect class="zone ${sel('piernas')}" data-part="piernas" x="78" y="215" width="26" height="100" rx="13"/>
+      <rect class="zone ${sel('piernas')}" data-part="piernas" x="116" y="215" width="26" height="100" rx="13"/>
     </svg>`;
   },
 };

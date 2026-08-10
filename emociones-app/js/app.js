@@ -74,6 +74,7 @@ const App = (() => {
       childCoping: Screens.childCoping,
       childFreeText: Screens.childFreeText,
       childThanks: Screens.childThanks,
+      childActivity: Screens.childActivity,
     };
     const fn = screens[state.screen] || Screens.welcome;
     document.body.className = state.screen.startsWith('child') ? 'theme-child' :
@@ -112,7 +113,10 @@ const App = (() => {
     go(nextScreen);
   }
 
-  function finishSession() {
+  /* Se llama al terminar el cuestionario (texto libre). Guarda el
+     registro ya mismo -sin esperar a la actividad extra- y decide si
+     corresponde mostrar una actividad de calma antes de cerrar. */
+  function completeQuestionnaire() {
     const { patientId, mascot, answers } = state.session;
     Store.addRecord({
       patientId,
@@ -134,6 +138,10 @@ const App = (() => {
         Store.savePatient(patient);
       }
     }
+    go('childThanks', { hasFollowUpActivity: !!getActivity(answers.emotion) });
+  }
+
+  function endSession() {
     state.session = null;
     go('welcome');
   }
@@ -148,5 +156,5 @@ const App = (() => {
 
   window.addEventListener('error', (e) => showFatalError(e.error || e.message));
 
-  return { go, startSession, saveAnswerAndNext, finishSession, state, showFatalError };
+  return { go, startSession, saveAnswerAndNext, completeQuestionnaire, endSession, state, showFatalError };
 })();

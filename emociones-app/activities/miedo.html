@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Actividad: La linterna del miedo</title>
+
+
+<style>
+  :root {
+    --fondo:        #FFF6EC;
+    --tarjeta:      #FFFFFF;
+    --texto:        #3A2A22;
+    --texto-suave:  #8A7266;
+    --miedo:        #5B54B8;   /* violeta del miedo */
+    --calma:        #1D9E75;
+    --calma-suave:  #E1F5EE;
+    --borde:        #F0E3D6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--fondo);
+    font-family: 'Nunito', sans-serif; color: var(--texto);
+    padding: 16px;
+  }
+  .tarjeta {
+    width: 100%; max-width: 460px;
+    background: var(--tarjeta);
+    border-radius: 28px; border: 2px solid var(--borde);
+    padding: 26px 22px 30px; text-align: center;
+  }
+  .titulo {
+    font-family: 'Fredoka', sans-serif; font-weight: 600;
+    font-size: 25px; margin: 0 0 6px;
+  }
+  .consigna {
+    font-size: 16px; color: var(--texto-suave);
+    margin: 0 0 10px; min-height: 44px; transition: color 0.3s;
+  }
+  .escena {
+    width: 260px; height: 260px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: center;
+    user-select: none; -webkit-tap-highlight-color: transparent;
+  }
+  .escena.sacudir { animation: sacudida 0.14s; }
+  @keyframes sacudida {
+    0%,100% { transform: translateX(0); }
+    50%     { transform: translateX(5px); }
+  }
+
+  /* ----- Barra deslizante ----- */
+  .nivel {
+    display: flex; align-items: center; gap: 12px;
+    max-width: 340px; margin: 14px auto 0;
+    font-family: 'Fredoka', sans-serif; font-size: 15px; color: var(--texto-suave);
+  }
+  .slider {
+    -webkit-appearance: none; appearance: none;
+    flex: 1; height: 16px; border-radius: 999px; outline: none; cursor: pointer;
+    background: linear-gradient(90deg, var(--calma), #A9A0E0 55%, var(--miedo));
+  }
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #fff; border: 5px solid var(--miedo);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.20); cursor: pointer; transition: border-color 0.3s;
+  }
+  .slider::-moz-range-thumb {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #fff; border: 5px solid var(--miedo);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.20); cursor: pointer;
+  }
+  .slider.calma::-webkit-slider-thumb { border-color: var(--calma); }
+  .slider.calma::-moz-range-thumb     { border-color: var(--calma); }
+  .slider:disabled { opacity: 0.6; cursor: default; }
+
+  /* ----- Grilla de actividades (2da página) ----- */
+  .actividades {
+    display: none;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px; margin-top: 18px;
+  }
+  .actividades.visible { display: grid; }
+  .opcion {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    background: var(--calma-suave); border: 2px solid var(--calma-suave);
+    border-radius: 16px; padding: 12px 6px; cursor: pointer;
+    font-family: 'Fredoka', sans-serif; color: var(--texto);
+    transition: transform 0.1s, border-color 0.2s;
+  }
+  .opcion:hover  { border-color: var(--calma); }
+  .opcion:active { transform: scale(0.95); }
+  .opcion-img {
+    width: 56px; height: 56px; border-radius: 12px; background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; line-height: 1;
+  }
+  .opcion-img img { width: 100%; height: 100%; object-fit: contain; border-radius: 12px; }
+  .opcion-txt { font-size: 12px; color: var(--texto-suave); line-height: 1.15; }
+
+  .boton {
+    margin-top: 22px; font-family: 'Fredoka', sans-serif;
+    font-size: 18px; font-weight: 500; color: #fff;
+    background: var(--miedo); border: none; border-radius: 999px;
+    padding: 14px 28px; cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .boton:hover  { filter: brightness(0.95); }
+  .boton:active { transform: scale(0.96); }
+  .registro {
+    margin: 16px auto 0; font-size: 13px; color: var(--texto-suave);
+    font-family: 'Nunito', sans-serif;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .escena.sacudir { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="tarjeta">
+    <h1 class="titulo" id="titulo">¿Cuánto miedo tenés?</h1>
+    <p class="consigna" id="consigna">Movés la barrita. Si la bajás, se prende la linterna y el miedo se hace chiquito.</p>
+
+    <div class="escena" id="escena">
+      <svg viewBox="0 0 560 560" width="248" height="248" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <radialGradient id="luz" cx="50%" cy="48%" r="55%">
+            <stop offset="0%"  stop-color="#FFF3C8" stop-opacity="0.95"/>
+            <stop offset="100%" stop-color="#FFF3C8" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+
+        <!-- Cuarto: cambia de oscuro (miedo) a claro (calma) -->
+        <rect id="cuarto" x="0" y="0" width="560" height="560" rx="26" fill="#FFF1D6"/>
+        <!-- Luz de la linterna (más fuerte cuanto más calma) -->
+        <circle id="luz" cx="280" cy="285" r="230" fill="url(#luz)" opacity="0"/>
+        <!-- Sombra en el piso -->
+        <ellipse cx="280" cy="430" rx="120" ry="22" fill="#000" opacity="0.12"/>
+        <!-- Halo suave de respiración (2da página) -->
+        <circle id="respiracion" cx="280" cy="300" r="0" fill="#FFE29A" opacity="0.45"/>
+
+        <!-- EL MONSTRUO: dos versiones superpuestas que se cruzan.
+             #feo (asustador) y #lindo (simpático). El grupo entero se
+             son siempre del mismo tamaño; solo cambia cuál se ve. -->
+        <g id="monstruo" transform="translate(280,300) scale(0.85)">
+
+          <!-- ---- Monstruo simpático ---- -->
+          <g id="lindo">
+            <line x1="-45" y1="-82" x2="-60" y2="-120" stroke="#7FB8E6" stroke-width="9" stroke-linecap="round"/>
+            <circle cx="-60" cy="-124" r="10" fill="#F4A6C0"/>
+            <line x1="45" y1="-82" x2="60" y2="-120" stroke="#7FB8E6" stroke-width="9" stroke-linecap="round"/>
+            <circle cx="60" cy="-124" r="10" fill="#F4A6C0"/>
+            <path d="M-90,30 Q-100,-60 -40,-85 Q0,-98 40,-85 Q100,-60 90,30 Q95,85 40,92 Q0,99 -40,92 Q-95,85 -90,30 Z" fill="#7FB8E6"/>
+            <circle cx="-34" cy="-10" r="22" fill="#fff"/>
+            <circle cx="34" cy="-10" r="22" fill="#fff"/>
+            <circle cx="-30" cy="-6" r="10" fill="#2A2440"/>
+            <circle cx="38" cy="-6" r="10" fill="#2A2440"/>
+            <circle cx="-26" cy="-10" r="3.5" fill="#fff"/>
+            <circle cx="42" cy="-10" r="3.5" fill="#fff"/>
+            <circle cx="-58" cy="26" r="12" fill="#F7B7CE" opacity="0.85"/>
+            <circle cx="58" cy="26" r="12" fill="#F7B7CE" opacity="0.85"/>
+            <path d="M-30,34 Q0,62 30,34" fill="none" stroke="#2A2440" stroke-width="6" stroke-linecap="round"/>
+          </g>
+
+          <!-- ---- Monstruo asustador ---- -->
+          <g id="feo" opacity="0">
+            <path d="M-72,-80 L-98,-128 L-46,-94 Z" fill="#241F33"/>
+            <path d="M72,-80 L98,-128 L46,-94 Z" fill="#241F33"/>
+            <path d="M-95,38 Q-108,-68 -40,-92 Q0,-106 40,-92 Q108,-68 95,38 Q100,90 40,95 Q0,101 -40,95 Q-100,90 -95,38 Z" fill="#241F33"/>
+            <ellipse cx="-38" cy="-12" rx="20" ry="24" fill="#FFE45C"/>
+            <ellipse cx="38" cy="-12" rx="20" ry="24" fill="#FFE45C"/>
+            <ellipse cx="-34" cy="-8" rx="7" ry="13" fill="#1B1626"/>
+            <ellipse cx="42" cy="-8" rx="7" ry="13" fill="#1B1626"/>
+            <path d="M-60,-40 L-16,-22" stroke="#0F0B16" stroke-width="9" stroke-linecap="round"/>
+            <path d="M60,-40 L16,-22" stroke="#0F0B16" stroke-width="9" stroke-linecap="round"/>
+            <path d="M-42,42 Q0,58 42,42 L42,50 Q0,70 -42,50 Z" fill="#0F0B16"/>
+            <polyline points="-38,45 -28,55 -18,45 -8,55 2,45 12,55 22,45 32,55 38,45"
+                      fill="none" stroke="#fff" stroke-width="3"/>
+          </g>
+
+        </g>
+      </svg>
+    </div>
+
+    <div class="nivel">
+      <span>calma</span>
+      <input type="range" class="slider" id="slider" min="0" max="10" step="1" value="0" aria-label="Nivel de miedo">
+      <span>miedo</span>
+    </div>
+
+    <div class="actividades" id="actividades"></div>
+
+    <button class="boton" id="boton">Ya mostré mi miedo</button>
+
+    <p class="registro" id="registro">Se registra para Malen: miedo 0/10</p>
+  </div>
+
+<script>
+/* ================================================================
+   CONFIGURACIÓN
+   ================================================================ */
+const ACTIVIDAD = {
+  emocion: "miedo",
+  textos: {
+    inicioTitulo:   "¿Cuánto miedo tenés?",
+    inicioConsigna: "Movés la barrita. Si la bajás, se prende la linterna y el miedo se hace chiquito.",
+    calmaTitulo:    "Ahora vamos a achicar el miedo",
+    calmaConsigna:  "Respirá y bajá la barrita. Cuando estés mejor, tocá lo que te ayuda.",
+    cierreTitulo:   "¡Muy bien!",
+    cierreConsigna: "Miraste tu miedo de frente y lo hiciste chiquito y amigable.",
+    botonSacar:     "Ya mostré mi miedo"
+  }
+};
+
+/* Las 9 actividades de calma para el Miedo.
+   El emoji es provisorio: se reemplaza por el dibujo de cada acción. */
+const ACCIONES_MIEDO = [
+  { id: "respirar",         nombre: "Respirar hondo",       emoji: "🌬️" },
+  { id: "abrazo_mariposa",  nombre: "Abrazo de mariposa",   emoji: "🦋" },
+  { id: "lugar_feliz",      nombre: "Mi lugar feliz",       emoji: "🌈" },
+  { id: "frase_amable",     nombre: "Decirme algo bueno",   emoji: "💬" },
+  { id: "pedir_abrazo",     nombre: "Pedir un abrazo",      emoji: "🤗" },
+  { id: "contar_a_alguien", nombre: "Contarle a alguien",   emoji: "🧑" },
+  { id: "pedir_ayuda",      nombre: "Pedir ayuda",          emoji: "🙋" },
+  { id: "dibujar",          nombre: "Dibujar lo que siento",emoji: "🎨" },
+  { id: "objeto_querido",   nombre: "Abrazar mi peluche",   emoji: "🧸" }
+];
+
+/* ================================================================
+   ESTADO
+   ================================================================ */
+const estado = {
+  fase: "sacar",
+  intensidad: 0,
+  pico: 0,
+  queLoAyudo: null
+};
+
+const el = {
+  titulo:       document.getElementById("titulo"),
+  consigna:     document.getElementById("consigna"),
+  escena:       document.getElementById("escena"),
+  cuarto:       document.getElementById("cuarto"),
+  luz:          document.getElementById("luz"),
+  respiracion:  document.getElementById("respiracion"),
+  monstruo:     document.getElementById("monstruo"),
+  feo:          document.getElementById("feo"),
+  lindo:        document.getElementById("lindo"),
+  slider:       document.getElementById("slider"),
+  actividades:  document.getElementById("actividades"),
+  boton:        document.getElementById("boton"),
+  registro:     document.getElementById("registro")
+};
+
+/* ================================================================
+   FUNCIONES
+   ================================================================ */
+
+// Mezcla dos números según t (0 a 1). Sirve para pasar de un color a otro.
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+// Color del cuarto: de crema claro (calma) a violeta oscuro (miedo)
+function colorCuarto(t) {
+  const r = Math.round(lerp(255, 34, t));
+  const g = Math.round(lerp(241, 30, t));
+  const b = Math.round(lerp(214, 66, t));
+  return "rgb(" + r + "," + g + "," + b + ")";
+}
+
+// dibujar(): mira el nivel de miedo y actualiza toda la escena
+function dibujar() {
+  const i = estado.intensidad;
+  const t = i / 10;                                  // 0 = calma, 1 = mucho miedo
+
+  el.cuarto.setAttribute("fill", colorCuarto(t));    // el cuarto se oscurece
+  el.luz.setAttribute("opacity", (1 - t) * 0.9);     // la linterna alumbra al calmarse
+
+  // Los dos monstruos quedan siempre del mismo tamaño (fijado en el SVG).
+  el.feo.setAttribute("opacity",  t.toFixed(2));     // asustador aparece con el miedo
+  el.lindo.setAttribute("opacity", (1 - t).toFixed(2)); // simpático aparece con la calma
+
+  el.slider.value = i;
+  const etiqueta = estado.fase === "cierre" ? "Guardado para Malen" : "Se registra para Malen";
+  el.registro.textContent = etiqueta + ": miedo " + Math.round(i) + "/10";
+}
+
+function sacudir() {
+  el.escena.classList.add("sacudir");
+  setTimeout(() => el.escena.classList.remove("sacudir"), 140);
+}
+
+/* ------------------ LA BARRA DESLIZANTE ------------------ */
+let ultimoNivel = 0;
+function moverBarra() {
+  if (estado.fase === "cierre") { el.slider.value = estado.intensidad; return; }
+  const val = parseInt(el.slider.value, 10);
+  if (val > ultimoNivel) sacudir();        // tiembla un poco cuando el miedo sube
+  ultimoNivel = val;
+  estado.intensidad = val;
+  estado.pico = Math.max(estado.pico, val);
+  dibujar();
+}
+
+/* ------------------ ARMAR LAS ACTIVIDADES ------------------ */
+function renderActividades() {
+  ACCIONES_MIEDO.forEach(accion => {
+    const boton = document.createElement("button");
+    boton.className = "opcion";
+    boton.dataset.id = accion.id;
+    // El día de mañana, en vez del emoji, acá va: <img src="imagenes/.../ID.png">
+    boton.innerHTML =
+      '<span class="opcion-img">' + accion.emoji + '</span>' +
+      '<span class="opcion-txt">' + accion.nombre + '</span>';
+    boton.addEventListener("click", () => elegirAyuda(accion.id));
+    el.actividades.appendChild(boton);
+  });
+}
+
+/* ------------------ FASE 2: CALMARSE ------------------ */
+function empezarCalma() {
+  if (estado.pico === 0) return;
+  estado.fase = "calma";
+  el.titulo.textContent    = ACTIVIDAD.textos.calmaTitulo;
+  el.consigna.textContent  = ACTIVIDAD.textos.calmaConsigna;
+  el.slider.classList.add("calma");
+  el.actividades.classList.add("visible");
+  el.boton.style.display   = "none";
+  animarRespiracion();
+}
+function animarRespiracion() {
+  let r = 40, creciendo = true;
+  setInterval(() => {
+    if (creciendo) { r += 1.8; if (r >= 115) creciendo = false; }
+    else           { r -= 1.8; if (r <= 40)  creciendo = true; }
+    el.respiracion.setAttribute("r", r);
+  }, 40);
+}
+
+/* ------------------ FASE 3: CIERRE ------------------ */
+function elegirAyuda(id) {
+  if (estado.fase !== "calma") return;
+  const accion = ACCIONES_MIEDO.find(a => a.id === id);
+  estado.queLoAyudo = accion ? accion.nombre : id;
+  estado.fase = "cierre";
+  el.titulo.textContent   = ACTIVIDAD.textos.cierreTitulo;
+  el.consigna.textContent = ACTIVIDAD.textos.cierreConsigna;
+  el.consigna.style.color = "var(--calma)";
+  el.actividades.classList.remove("visible");
+  el.slider.disabled = true;
+
+  const resultado = {
+    emocion: ACTIVIDAD.emocion,
+    intensidadMaxima: estado.pico,
+    intensidadFinal: Math.round(estado.intensidad),
+    queLoAyudo: id,
+    queLoAyudoNombre: estado.queLoAyudo,
+    reguloSolo: estado.intensidad <= 3,
+    fecha: new Date().toISOString()
+  };
+  console.log("Resultado de la sesión:", resultado);
+  if (window.parent !== window) { window.parent.postMessage(Object.assign({ type: "activity-complete" }, resultado), "*"); }
+  el.registro.textContent =
+    "Guardado en la ficha: llegó a " + resultado.intensidadMaxima +
+    "/10 · lo ayudó " + resultado.queLoAyudoNombre.toLowerCase();
+  dibujar();
+}
+
+/* ================================================================
+   CONEXIONES Y ARRANQUE
+   ================================================================ */
+renderActividades();
+el.slider.addEventListener("input", moverBarra);
+el.boton.addEventListener("click", empezarCalma);
+
+el.titulo.textContent   = ACTIVIDAD.textos.inicioTitulo;
+el.consigna.textContent = ACTIVIDAD.textos.inicioConsigna;
+el.boton.textContent    = ACTIVIDAD.textos.botonSacar;
+dibujar();
+</script>
+</body>
+</html>

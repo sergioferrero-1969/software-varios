@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Actividad: La nube de lluvia</title>
+
+
+<style>
+  :root {
+    --fondo:        #FFF6EC;
+    --tarjeta:      #FFFFFF;
+    --texto:        #3A2A22;
+    --texto-suave:  #8A7266;
+    --tristeza:     #5B86B8;
+    --calma:        #1D9E75;
+    --calma-suave:  #E1F5EE;
+    --borde:        #F0E3D6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--fondo);
+    font-family: 'Nunito', sans-serif; color: var(--texto);
+    padding: 16px;
+  }
+  .tarjeta {
+    width: 100%; max-width: 460px;
+    background: var(--tarjeta);
+    border-radius: 28px; border: 2px solid var(--borde);
+    padding: 26px 22px 30px; text-align: center;
+  }
+  .titulo {
+    font-family: 'Fredoka', sans-serif; font-weight: 600;
+    font-size: 25px; margin: 0 0 6px;
+  }
+  .consigna {
+    font-size: 16px; color: var(--texto-suave);
+    margin: 0 0 6px; min-height: 44px; transition: color 0.3s;
+  }
+  .escena {
+    position: relative;                 /* para ubicar las burbujitas encima */
+    width: 260px; height: 260px; margin: 4px auto 0;
+    cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Burbujita de mensaje que aparece y desaparece */
+  .burbuja {
+    position: absolute; z-index: 5; pointer-events: none;
+    max-width: 155px; text-align: center;
+    background: #fff; color: var(--texto);
+    font-family: 'Fredoka', sans-serif; line-height: 1.2;
+    border-radius: 16px; border: 2px solid transparent;
+    box-shadow: 0 4px 12px rgba(60,80,120,0.18);
+    opacity: 0; transform: translateY(8px) scale(0.9);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .burbuja.visible { opacity: 1; transform: translateY(0) scale(1); }
+
+  /* La nube tiembla al tocarla */
+  #nube.vibra { animation: vibrar 0.28s ease; }
+  @keyframes vibrar {
+    0%,100% { transform: translate(0,0); }
+    20% { transform: translate(-3px, 2px); }
+    40% { transform: translate(3px, -2px); }
+    60% { transform: translate(-2px, 3px); }
+    80% { transform: translate(2px, -1px); }
+  }
+
+  /* ----- Grilla de actividades (2da página) ----- */
+  .actividades {
+    display: none; grid-template-columns: repeat(3, 1fr);
+    gap: 10px; margin-top: 16px;
+  }
+  .actividades.visible { display: grid; }
+  .opcion {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    background: var(--calma-suave); border: 2px solid var(--calma-suave);
+    border-radius: 16px; padding: 12px 6px; cursor: pointer;
+    font-family: 'Fredoka', sans-serif; color: var(--texto);
+    transition: transform 0.1s, border-color 0.2s;
+  }
+  .opcion:hover  { border-color: var(--calma); }
+  .opcion:active { transform: scale(0.95); }
+  .opcion-img {
+    width: 56px; height: 56px; border-radius: 12px; background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; line-height: 1;
+  }
+  .opcion-img img { width: 100%; height: 100%; object-fit: contain; border-radius: 12px; }
+  .opcion-txt { font-size: 12px; color: var(--texto-suave); line-height: 1.15; }
+
+  .boton {
+    margin-top: 18px; font-family: 'Fredoka', sans-serif;
+    font-size: 18px; font-weight: 500; color: #fff;
+    background: var(--tristeza); border: none; border-radius: 999px;
+    padding: 14px 28px; cursor: pointer;
+    transition: filter 0.2s, transform 0.1s, opacity 0.2s;
+  }
+  .boton:hover  { filter: brightness(0.95); }
+  .boton:active { transform: scale(0.96); }
+  .boton:disabled { opacity: 0.45; cursor: default; }
+  .registro {
+    margin: 16px auto 0; font-size: 13px; color: var(--texto-suave);
+    font-family: 'Nunito', sans-serif;
+  }
+</style>
+</head>
+<body>
+
+  <div class="tarjeta">
+    <h1 class="titulo" id="titulo">¿Estás triste?</h1>
+    <p class="consigna" id="consigna">Está bien. Tocá la nube para dejarla llorar.</p>
+
+    <div class="escena" id="escena">
+      <svg viewBox="0 0 560 560" width="248" height="248" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect id="cielo" x="0" y="0" width="560" height="560" rx="26" fill="#C7D2DC"/>
+
+        <g id="sol" transform="translate(415,135)" opacity="0">
+          <g stroke="#FFC24B" stroke-width="7" stroke-linecap="round">
+            <line x1="0" y1="-58" x2="0" y2="-44"/>
+            <line x1="41" y1="-41" x2="31" y2="-31"/>
+            <line x1="58" y1="0" x2="44" y2="0"/>
+            <line x1="41" y1="41" x2="31" y2="31"/>
+            <line x1="0" y1="58" x2="0" y2="44"/>
+            <line x1="-41" y1="41" x2="-31" y2="31"/>
+            <line x1="-58" y1="0" x2="-44" y2="0"/>
+            <line x1="-41" y1="-41" x2="-31" y2="-31"/>
+          </g>
+          <circle r="32" fill="#FFD45C"/>
+        </g>
+
+        <ellipse id="charco" cx="280" cy="475" rx="20" ry="12" fill="#7FB0DA" opacity="0.7"/>
+
+        <g id="lluvia"></g>
+
+        <!-- Grupo externo: posición y tamaño de la nube (más grande) -->
+        <g transform="translate(280,205) scale(1.22)">
+          <!-- Grupo interno: es el que vibra -->
+          <g id="nube">
+            <g id="nubeCuerpo" fill="#8A96A4">
+              <rect x="-82" y="-2" width="164" height="44" rx="22"/>
+              <circle cx="-58" cy="2" r="42"/>
+              <circle cx="-14" cy="-24" r="50"/>
+              <circle cx="36" cy="-16" r="46"/>
+              <circle cx="66" cy="10" r="34"/>
+            </g>
+            <circle cx="-20" cy="8" r="6" fill="#2F3A45"/>
+            <circle cx="20" cy="8" r="6" fill="#2F3A45"/>
+            <circle cx="-22" cy="6" r="2" fill="#fff"/>
+            <circle cx="18" cy="6" r="2" fill="#fff"/>
+            <path id="boca" d="M-16,32 Q0,22 16,32" fill="none" stroke="#2F3A45" stroke-width="5" stroke-linecap="round"/>
+            <g id="lagrimas" fill="#6BA8D8">
+              <path d="M-20,18 q-7,10 0,16 q7,-6 0,-16 Z"/>
+              <path d="M20,18 q-7,10 0,16 q7,-6 0,-16 Z"/>
+            </g>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <div class="actividades" id="actividades"></div>
+
+    <button class="boton" id="boton" disabled>Ya lloré lo que necesitaba</button>
+
+    <p class="registro" id="registro">Se registra para Malen: tristeza 0/10</p>
+  </div>
+
+<script>
+/* ================================================================
+   CONFIGURACIÓN
+   ================================================================ */
+const ACTIVIDAD = {
+  emocion: "tristeza",
+  textos: {
+    inicioTitulo:   "¿Estás triste?",
+    inicioConsigna: "Está bien. Tocá la nube para dejarla llorar.",
+    calmaTitulo:    "¿Qué te haría sentir un poquito mejor?",
+    calmaConsigna:  "Elegí lo que te reconforta y la nube se va a despejar.",
+    cierreTitulo:   "Salió el solcito",
+    cierreConsigna: "Dejaste salir la tristeza y buscaste algo que te hace bien.",
+    botonSacar:     "Ya lloré lo que necesitaba"
+  },
+  // Mensajes que aparecen en burbujitas mientras la nube llora.
+  // Acompañan la tristeza como un proceso que lleva su tiempo.
+  aliento: [
+    "Está bien estar triste.",
+    "Llorar ayuda a sacar lo que duele.",
+    "No hay apuro, la tristeza lleva su tiempo.",
+    "El tiempo va curando las heridas.",
+    "El tiempo ayuda a curar la tristeza.",
+    "De a poquito, vas a estar mejor.",
+    "Lo que sentís es válido.",
+    "No estás solo con esto.",
+    "Después de la lluvia, sale el sol.",
+    "Sentir también es parte de crecer."
+  ]
+};
+
+/* Las 7 actividades de calma para la Tristeza. */
+const ACCIONES_TRISTEZA = [
+  { id: "abrazo_mariposa",  nombre: "Abrazo de mariposa", emoji: "🦋" },
+  { id: "lugar_feliz",      nombre: "Mi lugar feliz",     emoji: "🌈" },
+  { id: "pedir_abrazo",     nombre: "Pedir un abrazo",    emoji: "🤗" },
+  { id: "contar_a_alguien", nombre: "Contarle a alguien", emoji: "🧑" },
+  { id: "dibujar",          nombre: "Dibujar lo que siento", emoji: "🎨" },
+  { id: "musica",           nombre: "Escuchar música",    emoji: "🎵" },
+  { id: "objeto_querido",   nombre: "Abrazar mi peluche", emoji: "🧸" }
+];
+
+/* ================================================================
+   ESTADO
+   ================================================================ */
+const estado = {
+  fase: "sacar",
+  toques: 0,
+  nivel: 0,
+  queLoAyudo: null
+};
+
+const el = {
+  titulo:       document.getElementById("titulo"),
+  consigna:     document.getElementById("consigna"),
+  escena:       document.getElementById("escena"),
+  cielo:        document.getElementById("cielo"),
+  sol:          document.getElementById("sol"),
+  charco:       document.getElementById("charco"),
+  lluvia:       document.getElementById("lluvia"),
+  nube:         document.getElementById("nube"),
+  nubeCuerpo:   document.getElementById("nubeCuerpo"),
+  boca:         document.getElementById("boca"),
+  lagrimas:     document.getElementById("lagrimas"),
+  actividades:  document.getElementById("actividades"),
+  boton:        document.getElementById("boton"),
+  registro:     document.getElementById("registro")
+};
+
+/* ================================================================
+   FUNCIONES
+   ================================================================ */
+function actualizar() {
+  const n = Math.min(10, estado.toques);
+  estado.nivel = n;
+  el.charco.setAttribute("rx", 20 + n * 11);
+  const etiqueta = estado.fase === "cierre" ? "Guardado para Malen" : "Se registra para Malen";
+  el.registro.textContent = etiqueta + ": tristeza " + n + "/10";
+}
+
+// Gotitas que caen de la nube al charco
+function llover() {
+  for (let k = 0; k < 3; k++) {
+    const gota = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+    gota.setAttribute("cx", 280 + (Math.random() * 130 - 65));
+    gota.setAttribute("cy", 262);
+    gota.setAttribute("rx", 4); gota.setAttribute("ry", 8);
+    gota.setAttribute("fill", "#6BA8D8");
+    el.lluvia.appendChild(gota);
+    let y = 262;
+    const t = setInterval(() => {
+      y += 13; gota.setAttribute("cy", y);
+      if (y >= 460) { clearInterval(t); gota.remove(); }
+    }, 30);
+  }
+}
+
+// Hace temblar la nube (reiniciando la animación en cada toque)
+function vibrar() {
+  el.nube.classList.remove("vibra");
+  void el.nube.getBoundingClientRect();   // fuerza reinicio de la animación
+  el.nube.classList.add("vibra");
+}
+
+// Muestra una burbujita con un mensaje, en un lugar al azar, y la borra sola
+// Paletas de tonos suaves y de tamaños, para que cada burbuja sea distinta
+const TONOS_BURBUJA = [
+  { bg: "#EAF2FB", bd: "#BFD6F0", tx: "#35506F" },
+  { bg: "#F0ECFA", bd: "#D3C7EE", tx: "#574A78" },
+  { bg: "#E6F5EF", bd: "#BEE6D6", tx: "#2C6E56" },
+  { bg: "#FBECF2", bd: "#F0C9DA", tx: "#8A4A66" },
+  { bg: "#FBF3E3", bd: "#EAD9BD", tx: "#7A6338" }
+];
+const TAMANOS_BURBUJA = [
+  { fs: "11px", pad: "6px 10px" },
+  { fs: "13px", pad: "8px 12px" },
+  { fs: "15px", pad: "10px 15px" }
+];
+
+let msgIdx = 0;
+let burbujaActual = null;
+
+function mostrarBurbuja() {
+  // La burbuja anterior se va apenas aparece la próxima
+  if (burbujaActual) {
+    const vieja = burbujaActual;
+    vieja.classList.remove("visible");
+    setTimeout(() => vieja.remove(), 300);
+  }
+
+  const mensaje = ACTIVIDAD.aliento[msgIdx % ACTIVIDAD.aliento.length];
+  msgIdx++;
+
+  const b = document.createElement("div");
+  b.className = "burbuja";
+  b.textContent = mensaje;
+
+  // Tono y tamaño al azar
+  const tono   = TONOS_BURBUJA[Math.floor(Math.random() * TONOS_BURBUJA.length)];
+  const tamano = TAMANOS_BURBUJA[Math.floor(Math.random() * TAMANOS_BURBUJA.length)];
+  b.style.background  = tono.bg;
+  b.style.borderColor = tono.bd;
+  b.style.color       = tono.tx;
+  b.style.fontSize    = tamano.fs;
+  b.style.padding     = tamano.pad;
+
+  // Posición al azar alrededor de la nube y el charco
+  b.style.left = (2 + Math.random() * 58) + "%";
+  b.style.top  = (4 + Math.random() * 66) + "%";
+
+  el.escena.appendChild(b);
+  requestAnimationFrame(() => b.classList.add("visible"));
+  burbujaActual = b;
+}
+
+function limpiarBurbujas() {
+  el.escena.querySelectorAll(".burbuja").forEach(b => b.remove());
+  burbujaActual = null;
+}
+
+/* ------------------ TOCAR LA NUBE ------------------ */
+function tocarNube() {
+  if (estado.fase !== "sacar") return;
+  estado.toques++;
+  vibrar();
+  llover();
+  mostrarBurbuja();
+  actualizar();
+  el.boton.disabled = false;
+}
+
+/* ------------------ ARMAR LAS ACTIVIDADES ------------------ */
+function renderActividades() {
+  ACCIONES_TRISTEZA.forEach(accion => {
+    const boton = document.createElement("button");
+    boton.className = "opcion";
+    boton.dataset.id = accion.id;
+    boton.innerHTML =
+      '<span class="opcion-img">' + accion.emoji + '</span>' +
+      '<span class="opcion-txt">' + accion.nombre + '</span>';
+    boton.addEventListener("click", () => elegirAyuda(accion.id));
+    el.actividades.appendChild(boton);
+  });
+}
+
+/* ------------------ FASE 2: QUÉ RECONFORTA ------------------ */
+function pasarAElegir() {
+  if (estado.toques === 0) return;
+  estado.fase = "calma";
+  limpiarBurbujas();
+  el.titulo.textContent   = ACTIVIDAD.textos.calmaTitulo;
+  el.consigna.textContent = ACTIVIDAD.textos.calmaConsigna;
+  el.escena.style.cursor  = "default";
+  el.actividades.classList.add("visible");
+  el.boton.style.display  = "none";
+}
+
+/* ------------------ FASE 3: DESPEJAR Y CERRAR ------------------ */
+function elegirAyuda(id) {
+  if (estado.fase !== "calma") return;
+  const accion = ACCIONES_TRISTEZA.find(a => a.id === id);
+  estado.queLoAyudo = accion ? accion.nombre : id;
+  estado.fase = "cierre";
+
+  despejar();
+
+  el.titulo.textContent   = ACTIVIDAD.textos.cierreTitulo;
+  el.consigna.textContent = ACTIVIDAD.textos.cierreConsigna;
+  el.consigna.style.color = "var(--calma)";
+  el.actividades.classList.remove("visible");
+
+  const resultado = {
+    emocion: ACTIVIDAD.emocion,
+    tristezaExpresada: estado.nivel,
+    queLoAyudo: id,
+    queLoAyudoNombre: estado.queLoAyudo,
+    fecha: new Date().toISOString()
+  };
+  console.log("Resultado de la sesión:", resultado);
+  if (window.parent !== window) { window.parent.postMessage(Object.assign({ type: "activity-complete" }, resultado), "*"); }
+  el.registro.textContent =
+    "Guardado en la ficha: tristeza " + resultado.tristezaExpresada +
+    "/10 · la reconfortó " + resultado.queLoAyudoNombre.toLowerCase();
+  actualizar();
+}
+
+// Cambio a "despejado": nube blanca y contenta, cielo celeste, sale el sol
+function despejar() {
+  el.nubeCuerpo.setAttribute("fill", "#FFFFFF");
+  el.boca.setAttribute("d", "M-16,26 Q0,40 16,26");
+  el.lagrimas.style.opacity = "0";
+
+  const desde = [199,210,220], hasta = [173,214,247];
+  let p = 0;
+  const t1 = setInterval(() => {
+    p += 0.08; if (p >= 1) { p = 1; clearInterval(t1); }
+    const c = desde.map((v,i)=> Math.round(v + (hasta[i]-v)*p));
+    el.cielo.setAttribute("fill", "rgb("+c[0]+","+c[1]+","+c[2]+")");
+  }, 40);
+
+  let o = 0;
+  const t2 = setInterval(() => {
+    o += 0.06; if (o >= 1) { o = 1; clearInterval(t2); }
+    el.sol.setAttribute("opacity", o);
+  }, 40);
+}
+
+/* ================================================================
+   CONEXIONES Y ARRANQUE
+   ================================================================ */
+renderActividades();
+el.escena.addEventListener("click", tocarNube);
+el.boton.addEventListener("click", pasarAElegir);
+
+el.titulo.textContent   = ACTIVIDAD.textos.inicioTitulo;
+el.consigna.textContent = ACTIVIDAD.textos.inicioConsigna;
+el.boton.textContent    = ACTIVIDAD.textos.botonSacar;
+actualizar();
+</script>
+</body>
+</html>

@@ -476,10 +476,10 @@ Screens.childFreeText = (state) => `
     <textarea id="free-text" rows="3" class="free-text" placeholder="Escribí acá si querés..."></textarea>
     <button class="btn btn-primary btn-lg" id="btn-finish-flow">Listo</button>
   </div>`;
-Screens.wire.childFreeText = (state, { saveAnswerAndNext }) => {
+Screens.wire.childFreeText = (state) => {
   document.getElementById('btn-finish-flow').onclick = () => {
     state.session.answers.freeText = document.getElementById('free-text').value.trim();
-    saveAnswerAndNext('freeText', state.session.answers.freeText, 'childThanks');
+    App.completeQuestionnaire();
   };
 };
 
@@ -488,9 +488,29 @@ Screens.childThanks = (state) => `
   <div class="screen screen-child screen-thanks">
     <div class="mascot-big">${Mascots.guideMood(state.session.mascot, 'happy')}</div>
     <h2>¡Gracias por contarme cómo te sentís!</h2>
-    <p>Nos vemos la próxima 💛</p>
-    <button class="btn btn-primary btn-lg" id="btn-end">Terminar</button>
+    ${state.hasFollowUpActivity
+      ? '<p class="thanks-followup">¡Ahora vamos a trabajar juntos sobre eso!</p>'
+      : '<p>Nos vemos la próxima 💛</p><button class="btn btn-primary btn-lg" id="btn-end">Terminar</button>'}
   </div>`;
-Screens.wire.childThanks = () => {
-  document.getElementById('btn-end').onclick = () => App.finishSession();
+Screens.wire.childThanks = (state, { go }) => {
+  if (state.hasFollowUpActivity) {
+    setTimeout(() => go('childActivity'), 2600);
+  } else {
+    document.getElementById('btn-end').onclick = () => App.endSession();
+  }
+};
+
+/* ---------- Actividad de calma (HTML autónomo en iframe) ---------- */
+Screens.childActivity = (state) => `
+  <div class="screen screen-child screen-activity">
+    <iframe class="activity-frame" src="${getActivity(state.session.answers.emotion)}" title="Actividad de calma"></iframe>
+  </div>`;
+Screens.wire.childActivity = () => {
+  const onMessage = (e) => {
+    if (e.data && e.data.type === 'activity-complete') {
+      window.removeEventListener('message', onMessage);
+      setTimeout(() => App.endSession(), 4000);
+    }
+  };
+  window.addEventListener('message', onMessage);
 };
