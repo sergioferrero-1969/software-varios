@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Actividad: ¿Qué habrá en esta caja?</title>
+<style>
+  :root {
+    --fondo:#FFF6EC; --tarjeta:#FFFFFF; --texto:#3A2A22; --texto-suave:#8A7266;
+    --sorpresa:#A24EC0; --calma:#1D9E75; --si:#2E9E6B; --no:#C98A3C; --borde:#F0E3D6;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:var(--fondo); font-family:'Nunito',sans-serif; color:var(--texto); padding:16px; }
+  .tarjeta { width:100%; max-width:460px; background:var(--tarjeta);
+    border-radius:28px; border:2px solid var(--borde); padding:26px 22px 30px; text-align:center; }
+  .titulo { font-family:'Fredoka',sans-serif; font-weight:600; font-size:25px; margin:0 0 6px; }
+  .consigna { font-size:16px; color:var(--texto-suave); margin:0 0 6px; min-height:44px; transition:color .3s; }
+
+  .escena { position:relative; width:260px; height:260px; margin:4px auto 0;
+    background:#F3EAFB; border-radius:20px; overflow:hidden; user-select:none; }
+  .progreso { position:absolute; top:8px; right:10px; font-family:'Fredoka',sans-serif; font-size:13px; color:var(--texto-suave); }
+
+  .contenido { position:absolute; left:50%; bottom:120px; transform:translateX(-50%) scale(0);
+    font-size:66px; line-height:1; transition:transform .3s ease; }
+  .contenido.visible { transform:translateX(-50%) scale(1); }
+
+  .caja { position:absolute; bottom:36px; left:50%; transform:translateX(-50%); width:100px; }
+  .lid { width:112px; height:24px; margin-left:-6px; background:#8E3AAE; border:2px solid #6E2A88;
+    border-radius:6px; position:relative; transition:transform .25s ease, opacity .25s ease; }
+  .lid .bow { position:absolute; top:-20px; left:50%; transform:translateX(-50%); font-size:26px; }
+  .box { width:100px; height:76px; margin-top:2px; background:#B455C9; border:2px solid #6E2A88;
+    border-radius:6px; position:relative; overflow:hidden; }
+  .ribbon { position:absolute; left:50%; top:0; transform:translateX(-50%); width:16px; height:100%; background:#F4C34D; }
+  .quest { position:absolute; inset:0; display:none; align-items:center; justify-content:center;
+    font-family:'Fredoka',sans-serif; font-size:44px; color:#fff; }
+  .caja.abierta .lid { transform:translateY(-34px) rotate(-10deg); opacity:0; }
+  /* Caja misteriosa (la final) */
+  .caja.misterio .box { background:#6B5B8A; border-color:#4A3D63; }
+  .caja.misterio .lid { background:#544773; border-color:#4A3D63; }
+  .caja.misterio .ribbon { background:#B9A9D9; }
+  .caja.misterio .quest { display:flex; }
+  .caja.misterio.abierta .quest { display:none; }
+
+  .tapZone { position:absolute; inset:0; z-index:4; background:transparent; border:none; padding:0; margin:0;
+    cursor:pointer; -webkit-appearance:none; appearance:none; }
+
+  .fila { display:none; justify-content:center; gap:12px; margin-top:16px; }
+  .fila.visible { display:flex; }
+  .btnR { font-family:'Fredoka',sans-serif; font-size:16px; color:#fff; border:none; border-radius:999px;
+    padding:12px 18px; cursor:pointer; transition:filter .2s, transform .1s; }
+  .btnR:active { transform:scale(.95); }
+  .btnR.si { background:var(--si); }
+  .btnR.no { background:var(--no); }
+
+  .registro { margin:16px auto 0; font-size:13px; color:var(--texto-suave); font-family:'Nunito',sans-serif; }
+</style>
+</head>
+<body>
+  <div class="tarjeta">
+    <h1 class="titulo" id="titulo">¿Qué habrá en esta caja?</h1>
+    <p class="consigna" id="consigna">Tocá la caja para abrirla y ver qué sale.</p>
+
+    <div class="escena" id="escena">
+      <span class="progreso" id="progreso">1 / 4</span>
+      <div class="contenido" id="contenido"></div>
+      <div class="caja" id="caja">
+        <div class="lid"><div class="bow">🎀</div></div>
+        <div class="box"><div class="ribbon"></div><div class="quest" id="quest">?</div></div>
+      </div>
+      <button class="tapZone" id="tapZone" type="button" aria-label="Abrir la caja"></button>
+    </div>
+
+    <!-- Botones para decir si gustó (cajas normales) -->
+    <div class="fila" id="rating">
+      <button class="btnR si" data-r="linda" type="button">😊 ¡Me gustó!</button>
+      <button class="btnR no" data-r="fea" type="button">😕 No me gustó</button>
+    </div>
+
+    <!-- Botones para adivinar (caja final) -->
+    <div class="fila" id="prediccion">
+      <button class="btnR si" data-g="lindo" type="button">🙂 Algo lindo</button>
+      <button class="btnR no" data-g="feo" type="button">🙁 Algo feo</button>
+    </div>
+
+    <p class="registro" id="registro">Se registra para Malen: abriendo sorpresas...</p>
+  </div>
+
+<script>
+const ACTIVIDAD = { emocion:"sorpresa" };
+
+/* Cajas normales: contenido variado. La reacción la elige el chico. */
+const CAJAS = [
+  { id:"globos", nombre:"globos",    emoji:"🎈" },
+  { id:"arana",  nombre:"una araña", emoji:"🕷️" },
+  { id:"torta",  nombre:"una torta", emoji:"🎂" },
+  { id:"lluvia", nombre:"lluvia",    emoji:"🌧️" }
+];
+/* La caja final: por fuera se ve rara, pero adentro hay algo lindo (la vuelta de tuerca) */
+const FINAL = { emoji:"🐱", nombre:"un gatito" };
+
+const estado = { fase:"abrir", indice:0, abierta:false, valoraciones:[], prediccion:null };
+
+const el = {
+  titulo:document.getElementById("titulo"), consigna:document.getElementById("consigna"),
+  progreso:document.getElementById("progreso"), contenido:document.getElementById("contenido"),
+  caja:document.getElementById("caja"), quest:document.getElementById("quest"),
+  tapZone:document.getElementById("tapZone"),
+  rating:document.getElementById("rating"), prediccion:document.getElementById("prediccion"),
+  registro:document.getElementById("registro")
+};
+
+/* ---------- Cajas normales ---------- */
+function mostrarCaja() {
+  estado.abierta = false;
+  el.caja.classList.remove("abierta");
+  el.contenido.classList.remove("visible");
+  el.contenido.textContent = "";
+  el.rating.classList.remove("visible");
+  el.tapZone.style.display = "block";
+  el.progreso.textContent = (estado.indice + 1) + " / " + CAJAS.length;
+  el.consigna.textContent = "Tocá la caja para abrirla y ver qué sale.";
+  el.consigna.style.color = "var(--texto-suave)";
+}
+function abrirCaja() {
+  if (estado.fase !== "abrir" || estado.abierta) return;
+  estado.abierta = true;
+  const caja = CAJAS[estado.indice];
+  el.caja.classList.add("abierta");
+  el.contenido.textContent = caja.emoji;
+  requestAnimationFrame(() => el.contenido.classList.add("visible"));
+  el.tapZone.style.display = "none";
+  el.consigna.textContent = "¡Salió " + caja.nombre + "! ¿Te gustó esta sorpresa?";
+  el.rating.classList.add("visible");
+}
+function calificar(reaccion) {
+  if (!estado.abierta) return;
+  const caja = CAJAS[estado.indice];
+  estado.valoraciones.push({ id: caja.id, nombre: caja.nombre, reaccion: reaccion });
+  if (estado.indice < CAJAS.length - 1) {
+    estado.indice++;
+    mostrarCaja();
+  } else {
+    iniciarFinal();
+  }
+}
+
+/* ---------- Caja final: predecir + vuelta de tuerca ---------- */
+function iniciarFinal() {
+  estado.fase = "final";
+  estado.abierta = false;
+  el.rating.classList.remove("visible");
+  el.caja.classList.remove("abierta");
+  el.caja.classList.add("misterio");
+  el.contenido.classList.remove("visible");
+  el.contenido.textContent = "";
+  el.tapZone.style.display = "none";
+  el.progreso.textContent = "última";
+  el.consigna.textContent = "Última caja... esta se ve rara. ¿Qué creés que habrá adentro?";
+  el.consigna.style.color = "var(--sorpresa)";
+  el.prediccion.classList.add("visible");
+}
+function predecir(guess) {
+  if (estado.fase !== "final") return;
+  estado.prediccion = guess;
+  estado.fase = "cierre";
+  el.prediccion.classList.remove("visible");
+
+  // se abre y sale algo LINDO (aunque por fuera parecía otra cosa)
+  el.caja.classList.add("abierta");
+  el.contenido.textContent = FINAL.emoji;
+  requestAnimationFrame(() => el.contenido.classList.add("visible"));
+
+  el.titulo.textContent = "¡Qué sorpresa!";
+  const reaccion = (guess === "feo")
+    ? "Parecía que iba a ser feo… ¡y salió " + FINAL.nombre + "! ¿Viste? No siempre es como uno espera."
+    : "¡Salió " + FINAL.nombre + "! A veces acertamos, pero no siempre las sorpresas son como esperamos.";
+  el.consigna.textContent = reaccion + " La vida da sorpresas lindas, y a veces no tanto: ¡hay que estar listos para lo inesperado!";
+  el.consigna.style.color = "var(--calma)";
+
+  const lindas = estado.valoraciones.filter(v => v.reaccion === "linda").length;
+  const resultado = {
+    emocion: ACTIVIDAD.emocion,
+    valoraciones: estado.valoraciones,
+    lindas: lindas, feas: estado.valoraciones.length - lindas,
+    prediccionFinal: guess, saleFinal: FINAL.id ? FINAL.nombre : FINAL.nombre,
+    acertoFinal: guess === "lindo",
+    fecha: new Date().toISOString()
+  };
+  console.log("Resultado de la sesión:", resultado);
+  if (window.parent !== window) { window.parent.postMessage(Object.assign({ type: "activity-complete" }, resultado), "*"); }
+  el.registro.textContent =
+    "Guardado en la ficha: " + lindas + " le gustaron · predijo '" + guess + "' en la última";
+}
+
+el.tapZone.addEventListener("click", abrirCaja);
+el.rating.querySelectorAll(".btnR").forEach(b => b.addEventListener("click", () => calificar(b.dataset.r)));
+el.prediccion.querySelectorAll(".btnR").forEach(b => b.addEventListener("click", () => predecir(b.dataset.g)));
+
+mostrarCaja();
+</script>
+</body>
+</html>

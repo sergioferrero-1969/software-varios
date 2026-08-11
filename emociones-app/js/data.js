@@ -82,19 +82,6 @@ const EMOTIONS = [
     ],
   },
   {
-    id: 'verguenza',
-    label: 'Vergüenza',
-    gender: 'f',
-    color: '#F49AC2',
-    dark: '#B84A78',
-    thoughts: [
-      { id: 'todos_mirando', label: 'Que todos me estaban mirando' },
-      { id: 'hice_ridiculo', label: 'Que hice el ridículo' },
-      { id: 'quiero_esconderme', label: 'Que quería esconderme' },
-      { id: 'nada', label: 'No pensé nada, solo me dio vergüenza' },
-    ],
-  },
-  {
     id: 'ansiedad',
     label: 'Ansiedad',
     gender: 'f',
@@ -155,6 +142,8 @@ const ACTIVITIES = {
   envidia: 'activities/envidia.html',
   alegria: 'activities/alegria.html',
   asco: 'activities/asco.html',
+  sorpresa: 'activities/sorpresa.html',
+  timidez: 'activities/timidez.html',
 };
 
 function getActivity(emotionId) {

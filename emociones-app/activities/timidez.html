@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Actividad: El caracol tímido</title>
+
+
+<style>
+  :root {
+    --fondo:        #FFF6EC;
+    --tarjeta:      #FFFFFF;
+    --texto:        #3A2A22;
+    --texto-suave:  #8A7266;
+    --timidez:      #E0913C;   /* naranja tibio */
+    --calma:        #1D9E75;
+    --calma-suave:  #E1F5EE;
+    --borde:        #F0E3D6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--fondo);
+    font-family: 'Nunito', sans-serif; color: var(--texto);
+    padding: 16px;
+  }
+  .tarjeta {
+    width: 100%; max-width: 460px;
+    background: var(--tarjeta);
+    border-radius: 28px; border: 2px solid var(--borde);
+    padding: 26px 22px 30px; text-align: center;
+  }
+  .titulo {
+    font-family: 'Fredoka', sans-serif; font-weight: 600;
+    font-size: 25px; margin: 0 0 6px;
+  }
+  .consigna {
+    font-size: 16px; color: var(--texto-suave);
+    margin: 0 0 6px; min-height: 44px; transition: color 0.3s;
+  }
+  .escena {
+    position: relative;
+    width: 260px; height: 260px; margin: 4px auto 0;
+    user-select: none;
+  }
+
+  /* Burbujita motivadora (tamaño y tono varían) */
+  .burbuja {
+    position: absolute; z-index: 5; pointer-events: none;
+    max-width: 155px; text-align: center;
+    background: var(--bg, #fff); color: var(--texto);
+    font-family: 'Fredoka', sans-serif; line-height: 1.2;
+    padding: 8px 12px; border-radius: 14px;
+    border: 2px solid var(--bd, #DDE6F0);
+    box-shadow: 0 4px 12px rgba(90,70,40,0.16);
+    opacity: 0; transform: translateY(8px) scale(0.9);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .burbuja::after {
+    content: ""; position: absolute; left: 22px; bottom: -8px;
+    width: 12px; height: 12px; background: var(--bg, #fff);
+    border-right: 2px solid var(--bd, #DDE6F0);
+    border-bottom: 2px solid var(--bd, #DDE6F0);
+    transform: rotate(45deg);
+  }
+  .burbuja.visible { opacity: 1; transform: translateY(0) scale(1); }
+
+  /* ----- Barra deslizante ----- */
+  .nivel {
+    display: flex; align-items: center; gap: 12px;
+    max-width: 340px; margin: 12px auto 0;
+    font-family: 'Fredoka', sans-serif; font-size: 15px; color: var(--texto-suave);
+  }
+  .slider {
+    -webkit-appearance: none; appearance: none;
+    flex: 1; height: 16px; border-radius: 999px; outline: none; cursor: pointer;
+    background: linear-gradient(90deg, #E7D3B8, var(--timidez));
+  }
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #fff; border: 5px solid var(--timidez);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.20); cursor: pointer;
+  }
+  .slider::-moz-range-thumb {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #fff; border: 5px solid var(--timidez);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.20); cursor: pointer;
+  }
+  .slider:disabled { opacity: 0.6; cursor: default; }
+
+  /* ----- Grilla de actividades (2da página) ----- */
+  .actividades {
+    display: none; grid-template-columns: repeat(3, 1fr);
+    gap: 10px; margin-top: 16px;
+  }
+  .actividades.visible { display: grid; }
+  .opcion {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    background: var(--calma-suave); border: 2px solid var(--calma-suave);
+    border-radius: 16px; padding: 12px 6px; cursor: pointer;
+    font-family: 'Fredoka', sans-serif; color: var(--texto);
+    transition: transform 0.1s, border-color 0.2s;
+  }
+  .opcion:hover  { border-color: var(--calma); }
+  .opcion:active { transform: scale(0.95); }
+  .opcion-img {
+    width: 56px; height: 56px; border-radius: 12px; background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; line-height: 1;
+  }
+  .opcion-img img { width: 100%; height: 100%; object-fit: contain; border-radius: 12px; }
+  .opcion-txt { font-size: 12px; color: var(--texto-suave); line-height: 1.15; }
+
+  .boton {
+    margin-top: 18px; font-family: 'Fredoka', sans-serif;
+    font-size: 18px; font-weight: 500; color: #fff;
+    background: var(--timidez); border: none; border-radius: 999px;
+    padding: 14px 28px; cursor: pointer;
+    transition: filter 0.2s, transform 0.1s, opacity 0.2s;
+  }
+  .boton:hover  { filter: brightness(0.95); }
+  .boton:active { transform: scale(0.96); }
+  .boton:disabled { opacity: 0.45; cursor: default; }
+  .registro {
+    margin: 16px auto 0; font-size: 13px; color: var(--texto-suave);
+    font-family: 'Nunito', sans-serif;
+  }
+</style>
+</head>
+<body>
+
+  <div class="tarjeta">
+    <h1 class="titulo" id="titulo">El caracol tímido</h1>
+    <p class="consigna" id="consigna">Movés la barrita para que se asome. ¡Ojo! Si soltás, se esconde.</p>
+
+    <div class="escena" id="escena">
+      <svg viewBox="0 0 560 560" width="248" height="248" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <!-- Fondo y pasto -->
+        <rect x="0" y="0" width="560" height="560" rx="26" fill="#E7F1DA"/>
+        <rect x="0" y="398" width="560" height="162" fill="#C6E3A8"/>
+        <ellipse cx="280" cy="418" rx="150" ry="16" fill="#000" opacity="0.06"/>
+
+        <!-- Pie del caracol (su base) -->
+        <line id="foot" x1="150" y1="404" x2="392" y2="404" stroke="#C9902F" stroke-width="32" stroke-linecap="round"/>
+
+        <!-- Cabeza con antenitas y ojos -->
+        <g id="cabeza" transform="translate(350,388)">
+          <ellipse cx="0" cy="0" rx="24" ry="20" fill="#D8A64C" stroke="#A9762F" stroke-width="3"/>
+          <path d="M-19,3 Q-14,9 -7,5" fill="none" stroke="#7A5320" stroke-width="3" stroke-linecap="round"/>
+          <line id="stalkL" x1="-9" y1="-12" x2="-11" y2="-34" stroke="#D8A64C" stroke-width="6" stroke-linecap="round"/>
+          <line id="stalkR" x1="9"  y1="-12" x2="11"  y2="-34" stroke="#D8A64C" stroke-width="6" stroke-linecap="round"/>
+          <g id="eyeL" transform="translate(-11,-34)">
+            <circle r="7" fill="#fff" stroke="#A9762F" stroke-width="2"/>
+            <circle cx="-1" cy="0" r="3.2" fill="#2E3A20"/>
+          </g>
+          <g id="eyeR" transform="translate(11,-34)">
+            <circle r="7" fill="#fff" stroke="#A9762F" stroke-width="2"/>
+            <circle cx="-1" cy="0" r="3.2" fill="#2E3A20"/>
+          </g>
+        </g>
+
+        <!-- Caparazón (va ARRIBA para tapar al caracol cuando está adentro) -->
+        <g id="concha" transform="translate(372,315)">
+          <circle r="88" fill="#E4A85C" stroke="#B77B34" stroke-width="7"/>
+          <circle r="66" fill="none" stroke="#C98B44" stroke-width="6"/>
+          <circle r="45" fill="none" stroke="#C98B44" stroke-width="6"/>
+          <circle r="25" fill="none" stroke="#C98B44" stroke-width="6"/>
+          <circle r="8"  fill="#C98B44"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="nivel">
+      <span>adentro</span>
+      <input type="range" class="slider" id="slider" min="0" max="10" step="0.1" value="0" aria-label="Cuánto se asoma el caracol">
+      <span>afuera</span>
+    </div>
+
+    <div class="actividades" id="actividades"></div>
+
+    <button class="boton" id="boton" disabled>¡Me animo a salir!</button>
+
+    <p class="registro" id="registro">Se registra para Malen: se asomó 0/10</p>
+  </div>
+
+<script>
+/* ================================================================
+   CONFIGURACIÓN
+   ================================================================ */
+const ACTIVIDAD = {
+  emocion: "timidez",
+  textos: {
+    inicioTitulo:   "El caracol tímido",
+    inicioConsigna: "Movés la barrita para que se asome. ¡Ojo! Si soltás, se esconde.",
+    calmaTitulo:    "¿Qué te ayuda a animarte?",
+    calmaConsigna:  "Elegí lo que te da valentía para salir a saludar.",
+    cierreTitulo:   "¡Salió a saludar!",
+    cierreConsigna: "Te animaste de a poco y saliste. ¡Qué valiente!",
+    botonSacar:     "¡Me animo a salir!"
+  },
+  // Mensajes motivadores (uno por cada avance de confianza)
+  aliento: [
+    "¡Muy bien, te asomás de a poco!",
+    "No hay apuro, salí a tu ritmo.",
+    "¡Cada vez te animás más!",
+    "¡Casi afuera, qué valiente!"
+  ]
+};
+
+/* Las 4 actividades que dan valentía (timidez). */
+const ACCIONES_TIMIDEZ = [
+  { id: "frase_amable",    nombre: "Decirme algo bueno",     emoji: "💬" },
+  { id: "estirarme",       nombre: "Estirarme como un gato", emoji: "🐱" },
+  { id: "objeto_querido",  nombre: "Abrazar mi peluche",     emoji: "🧸" },
+  { id: "lugar_tranquilo", nombre: "Un lugar tranquilo",     emoji: "🛋️" }
+];
+
+/* ================================================================
+   ESTADO
+   ================================================================ */
+const estado = {
+  fase: "sacar",     // "sacar" -> "calma" -> "cierre"
+  nivel: 0,          // cuánto está asomado AHORA (0 a 10)
+  valentia: 0,       // hasta dónde se queda al soltar (sube de a poco)
+  intentos: 0,       // cuántas veces ganó confianza
+  queLoAyudo: null
+};
+
+const el = {
+  titulo:      document.getElementById("titulo"),
+  consigna:    document.getElementById("consigna"),
+  escena:      document.getElementById("escena"),
+  foot:        document.getElementById("foot"),
+  cabeza:      document.getElementById("cabeza"),
+  stalkL:      document.getElementById("stalkL"),
+  stalkR:      document.getElementById("stalkR"),
+  eyeL:        document.getElementById("eyeL"),
+  eyeR:        document.getElementById("eyeR"),
+  slider:      document.getElementById("slider"),
+  actividades: document.getElementById("actividades"),
+  boton:       document.getElementById("boton"),
+  registro:    document.getElementById("registro")
+};
+
+/* ================================================================
+   DIBUJAR EL CARACOL SEGÚN CUÁNTO ESTÁ ASOMADO
+   ================================================================ */
+function dibujar() {
+  const e = estado.nivel / 10;         // 0 = adentro, 1 = afuera
+  const headX = 350 - e * 200;         // la cabeza se corre a la izquierda al salir
+  const sh = 4 + e * 22;               // las antenitas se estiran hacia arriba
+
+  el.foot.setAttribute("x1", headX - 6);
+  el.cabeza.setAttribute("transform", "translate(" + headX + ",388)");
+
+  const topY = -12 - sh;
+  el.stalkL.setAttribute("y2", topY);
+  el.stalkR.setAttribute("y2", topY);
+  el.eyeL.setAttribute("transform", "translate(-11," + topY + ")");
+  el.eyeR.setAttribute("transform", "translate(11,"  + topY + ")");
+
+  el.slider.value = estado.nivel;
+  const etiqueta = estado.fase === "cierre" ? "Guardado para Malen" : "Se registra para Malen";
+  el.registro.textContent = etiqueta + ": se asomó " + Math.round(estado.nivel) + "/10";
+}
+
+/* ================================================================
+   ANIMACIÓN SUAVE DEL NIVEL (para esconderse o salir)
+   ================================================================ */
+let anim = null;
+function animarNivel(destino, alTerminar) {
+  if (anim) clearInterval(anim);
+  anim = setInterval(() => {
+    const d = destino - estado.nivel;
+    if (Math.abs(d) < 0.12) {
+      estado.nivel = destino; dibujar();
+      clearInterval(anim); anim = null;
+      if (alTerminar) alTerminar();
+      return;
+    }
+    estado.nivel += d * 0.2;
+    dibujar();
+  }, 24);
+}
+
+/* ================================================================
+   BURBUJAS MOTIVADORAS
+   ================================================================ */
+const TONOS = [
+  { bg: "#FFF3D6", bd: "#F0D79A" },
+  { bg: "#E1F5EE", bd: "#A9E0CE" },
+  { bg: "#EDE7FB", bd: "#C9BBF0" },
+  { bg: "#FDE7EE", bd: "#F4B7CE" }
+];
+function limpiarBurbujas() {
+  el.escena.querySelectorAll(".burbuja").forEach(b => b.remove());
+}
+function mostrarBurbuja(mensaje) {
+  limpiarBurbujas();   // la anterior desaparece cuando aparece la nueva
+  const b = document.createElement("div");
+  b.className = "burbuja";
+  b.textContent = mensaje;
+  const tono = TONOS[Math.floor(Math.random() * TONOS.length)];
+  b.style.setProperty("--bg", tono.bg);
+  b.style.setProperty("--bd", tono.bd);
+  b.style.fontSize = (12 + Math.floor(Math.random() * 5)) + "px";
+  b.style.left = (6 + Math.random() * 46) + "%";
+  b.style.top  = (4 + Math.random() * 40) + "%";
+  el.escena.appendChild(b);
+  requestAnimationFrame(() => b.classList.add("visible"));
+}
+
+/* ================================================================
+   LA BARRA: asomar (input) y esconderse al soltar (change)
+   ================================================================ */
+let picoArrastre = 0;
+function alArrastrar() {
+  if (estado.fase !== "sacar") return;
+  if (anim) { clearInterval(anim); anim = null; }   // cancela un escondido en curso
+  estado.nivel = parseFloat(el.slider.value);
+  picoArrastre = Math.max(picoArrastre, estado.nivel);
+  dibujar();
+}
+function alSoltar() {
+  if (estado.fase !== "sacar") return;
+  // ¿se asomó más allá de su confianza actual? entonces gana un poco de valentía
+  if (picoArrastre >= estado.valentia + 1.5 && estado.valentia < 8) {
+    estado.valentia = Math.min(8, estado.valentia + 2);
+    estado.intentos++;
+    const msg = ACTIVIDAD.aliento[Math.min(ACTIVIDAD.aliento.length - 1, estado.intentos - 1)];
+    mostrarBurbuja(msg);
+    el.boton.disabled = false;   // ya puede animarse a salir del todo
+  }
+  picoArrastre = 0;
+  animarNivel(estado.valentia);  // se esconde... pero solo hasta su nivel de confianza
+}
+
+/* ================================================================
+   ARMAR LAS ACTIVIDADES (2da página)
+   ================================================================ */
+const GENERO = (() => {
+  const g = new URLSearchParams(location.search).get('sex');
+  return (g === 'M' || g === 'F') ? g : 'N';
+})();
+function renderActividades() {
+  ACCIONES_TIMIDEZ.forEach(accion => {
+    const boton = document.createElement("button");
+    boton.className = "opcion";
+    boton.dataset.id = accion.id;
+    boton.innerHTML =
+      '<span class="opcion-img"><img src="imagenes/' + accion.id + '-' + GENERO + '.png" alt=""></span>' +
+      '<span class="opcion-txt">' + accion.nombre + '</span>';
+    boton.addEventListener("click", () => elegirAyuda(accion.id));
+    el.actividades.appendChild(boton);
+  });
+}
+
+/* ================================================================
+   FASE 2: SALIR DEL TODO Y ELEGIR QUÉ AYUDA
+   ================================================================ */
+function salirDelTodo() {
+  if (estado.valentia === 0) return;
+  estado.fase = "calma";
+  limpiarBurbujas();
+  el.slider.disabled = true;
+  animarNivel(10);                    // el caracol sale del todo y se queda
+  el.titulo.textContent   = ACTIVIDAD.textos.calmaTitulo;
+  el.consigna.textContent = ACTIVIDAD.textos.calmaConsigna;
+  el.actividades.classList.add("visible");
+  el.boton.style.display  = "none";
+}
+
+/* ================================================================
+   FASE 3: CIERRE
+   ================================================================ */
+function elegirAyuda(id) {
+  if (estado.fase !== "calma") return;
+  const accion = ACCIONES_TIMIDEZ.find(a => a.id === id);
+  estado.queLoAyudo = accion ? accion.nombre : id;
+  estado.fase = "cierre";
+  el.titulo.textContent   = ACTIVIDAD.textos.cierreTitulo;
+  el.consigna.textContent = ACTIVIDAD.textos.cierreConsigna;
+  el.consigna.style.color = "var(--calma)";
+  el.actividades.classList.remove("visible");
+
+  const resultado = {
+    emocion: ACTIVIDAD.emocion,
+    seAnimoASalir: true,
+    intentos: estado.intentos,          // cuántas veces necesitó animarse
+    queLoAyudo: id,
+    queLoAyudoNombre: estado.queLoAyudo,
+    fecha: new Date().toISOString()
+  };
+  console.log("Resultado de la sesión:", resultado);
+  if (window.parent !== window) { window.parent.postMessage(Object.assign({ type: "activity-complete" }, resultado), "*"); }
+  el.registro.textContent =
+    "Guardado en la ficha: salió a saludar · lo ayudó " + resultado.queLoAyudoNombre.toLowerCase();
+}
+
+/* ================================================================
+   CONEXIONES Y ARRANQUE
+   ================================================================ */
+renderActividades();
+el.slider.addEventListener("input", alArrastrar);
+el.slider.addEventListener("change", alSoltar);
+el.boton.addEventListener("click", salirDelTodo);
+
+el.titulo.textContent   = ACTIVIDAD.textos.inicioTitulo;
+el.consigna.textContent = ACTIVIDAD.textos.inicioConsigna;
+el.boton.textContent    = ACTIVIDAD.textos.botonSacar;
+dibujar();
+</script>
+</body>
+</html>
