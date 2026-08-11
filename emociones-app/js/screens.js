@@ -500,10 +500,16 @@ Screens.wire.childThanks = (state, { go }) => {
 };
 
 /* ---------- Actividad de calma (HTML autónomo en iframe) ---------- */
-Screens.childActivity = (state) => `
+Screens.childActivity = (state) => {
+  const patient = Store.getPatient(state.session.patientId);
+  const sex = (patient && patient.sex) || '';
+  const base = getActivity(state.session.answers.emotion);
+  const src = base + (sex ? '?sex=' + encodeURIComponent(sex) : '');
+  return `
   <div class="screen screen-child screen-activity">
-    <iframe class="activity-frame" src="${getActivity(state.session.answers.emotion)}" title="Actividad de calma"></iframe>
+    <iframe class="activity-frame" src="${src}" title="Actividad de calma"></iframe>
   </div>`;
+};
 Screens.wire.childActivity = () => {
   const onMessage = (e) => {
     if (e.data && e.data.type === 'activity-complete') {

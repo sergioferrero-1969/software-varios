@@ -93,7 +93,7 @@
   }
   .opcion:hover  { border-color: var(--calma); }
   .opcion:active { transform: scale(0.95); }
-  /* El recuadro donde luego irá el DIBUJO (por ahora un emoji) */
+  /* El recuadro con el dibujo de la acción */
   .opcion-img {
     width: 56px; height: 56px; border-radius: 12px; background: #fff;
     display: flex; align-items: center; justify-content: center;
@@ -173,20 +173,18 @@ const ACTIVIDAD = {
   }
 };
 
-/* Las 10 actividades de calma para el Enojo.
-   El "emoji" es provisorio: cuando lleguen los dibujos, se reemplaza
-   por la imagen de cada acción (usando su id, ej: imagenes/nino/respirar.png). */
+/* Las 10 actividades de calma para el Enojo. */
 const ACCIONES_ENOJO = [
-  { id: "respirar",        nombre: "Respirar hondo",        emoji: "🌬️" },
-  { id: "contar",          nombre: "Contar hasta 10",       emoji: "🔢" },
-  { id: "tensar_soltar",   nombre: "Apretar y soltar",      emoji: "✊" },
-  { id: "agua",            nombre: "Tomar agua",            emoji: "💧" },
-  { id: "caminar",         nombre: "Salir a caminar",       emoji: "🚶" },
-  { id: "moverme",         nombre: "Moverme un poco",       emoji: "🤸" },
-  { id: "entender_motivo", nombre: "Entender qué pasó",     emoji: "💡" },
-  { id: "buscar_solucion", nombre: "Buscar una solución",   emoji: "🧩" },
-  { id: "dibujar",         nombre: "Dibujar lo que siento", emoji: "🎨" },
-  { id: "musica",          nombre: "Escuchar música",       emoji: "🎵" }
+  { id: "respirar",        nombre: "Respirar hondo" },
+  { id: "contar",          nombre: "Contar hasta 10" },
+  { id: "tensar_soltar",   nombre: "Apretar y soltar" },
+  { id: "agua",            nombre: "Tomar agua" },
+  { id: "caminar",         nombre: "Salir a caminar" },
+  { id: "moverme",         nombre: "Moverme un poco" },
+  { id: "entender_motivo", nombre: "Entender qué pasó" },
+  { id: "buscar_solucion", nombre: "Buscar una solución" },
+  { id: "dibujar",         nombre: "Dibujar lo que siento" },
+  { id: "musica",          nombre: "Escuchar música" }
 ];
 
 /* ================================================================
@@ -260,15 +258,28 @@ function moverBarra() {
   dibujar();
 }
 
+/* Género de las ilustraciones: M/F si viene en la URL (?sex=M o ?sex=F,
+   según la ficha del paciente), si no, la variante neutral. */
+const GENERO = (() => {
+  const g = new URLSearchParams(location.search).get('sex');
+  return (g === 'M' || g === 'F') ? g : 'N';
+})();
+
+/* Acciones sin un recorte de imagen confiable todavía: se muestran
+   con un emoji de reserva hasta que llegue el archivo corregido. */
+const SIN_IMAGEN_CONFIABLE = { caminar: '🚶' };
+
 /* ------------------ ARMAR LAS ACTIVIDADES ------------------ */
 function renderActividades() {
   ACCIONES_ENOJO.forEach(accion => {
     const boton = document.createElement("button");
     boton.className = "opcion";
     boton.dataset.id = accion.id;
-    // El día de mañana, en vez del emoji, acá va: <img src="imagenes/.../ID.png">
+    const emojiReserva = SIN_IMAGEN_CONFIABLE[accion.id];
     boton.innerHTML =
-      '<span class="opcion-img">' + accion.emoji + '</span>' +
+      (emojiReserva
+        ? '<span class="opcion-img" style="font-size:32px;">' + emojiReserva + '</span>'
+        : '<span class="opcion-img"><img src="imagenes/' + accion.id + '-' + GENERO + '.png" alt=""></span>') +
       '<span class="opcion-txt">' + accion.nombre + '</span>';
     boton.addEventListener("click", () => elegirAyuda(accion.id));
     el.actividades.appendChild(boton);

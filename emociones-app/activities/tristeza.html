@@ -200,13 +200,13 @@ const ACTIVIDAD = {
 
 /* Las 7 actividades de calma para la Tristeza. */
 const ACCIONES_TRISTEZA = [
-  { id: "abrazo_mariposa",  nombre: "Abrazo de mariposa", emoji: "🦋" },
-  { id: "lugar_feliz",      nombre: "Mi lugar feliz",     emoji: "🌈" },
-  { id: "pedir_abrazo",     nombre: "Pedir un abrazo",    emoji: "🤗" },
-  { id: "contar_a_alguien", nombre: "Contarle a alguien", emoji: "🧑" },
-  { id: "dibujar",          nombre: "Dibujar lo que siento", emoji: "🎨" },
-  { id: "musica",           nombre: "Escuchar música",    emoji: "🎵" },
-  { id: "objeto_querido",   nombre: "Abrazar mi peluche", emoji: "🧸" }
+  { id: "abrazo_mariposa",  nombre: "Abrazo de mariposa" },
+  { id: "lugar_feliz",      nombre: "Mi lugar feliz" },
+  { id: "pedir_abrazo",     nombre: "Pedir un abrazo" },
+  { id: "contar_a_alguien", nombre: "Contarle a alguien" },
+  { id: "dibujar",          nombre: "Dibujar lo que siento" },
+  { id: "musica",           nombre: "Escuchar música" },
+  { id: "objeto_querido",   nombre: "Abrazar mi peluche" }
 ];
 
 /* ================================================================
@@ -338,6 +338,13 @@ function tocarNube() {
   el.boton.disabled = false;
 }
 
+/* Género de las ilustraciones: M/F si viene en la URL (?sex=M o ?sex=F,
+   según la ficha del paciente), si no, la variante neutral. */
+const GENERO = (() => {
+  const g = new URLSearchParams(location.search).get('sex');
+  return (g === 'M' || g === 'F') ? g : 'N';
+})();
+
 /* ------------------ ARMAR LAS ACTIVIDADES ------------------ */
 function renderActividades() {
   ACCIONES_TRISTEZA.forEach(accion => {
@@ -345,7 +352,7 @@ function renderActividades() {
     boton.className = "opcion";
     boton.dataset.id = accion.id;
     boton.innerHTML =
-      '<span class="opcion-img">' + accion.emoji + '</span>' +
+      '<span class="opcion-img"><img src="imagenes/' + accion.id + '-' + GENERO + '.png" alt=""></span>' +
       '<span class="opcion-txt">' + accion.nombre + '</span>';
     boton.addEventListener("click", () => elegirAyuda(accion.id));
     el.actividades.appendChild(boton);

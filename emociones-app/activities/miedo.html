@@ -215,18 +215,17 @@ const ACTIVIDAD = {
   }
 };
 
-/* Las 9 actividades de calma para el Miedo.
-   El emoji es provisorio: se reemplaza por el dibujo de cada acción. */
+/* Las 9 actividades de calma para el Miedo. */
 const ACCIONES_MIEDO = [
-  { id: "respirar",         nombre: "Respirar hondo",       emoji: "🌬️" },
-  { id: "abrazo_mariposa",  nombre: "Abrazo de mariposa",   emoji: "🦋" },
-  { id: "lugar_feliz",      nombre: "Mi lugar feliz",       emoji: "🌈" },
-  { id: "frase_amable",     nombre: "Decirme algo bueno",   emoji: "💬" },
-  { id: "pedir_abrazo",     nombre: "Pedir un abrazo",      emoji: "🤗" },
-  { id: "contar_a_alguien", nombre: "Contarle a alguien",   emoji: "🧑" },
-  { id: "pedir_ayuda",      nombre: "Pedir ayuda",          emoji: "🙋" },
-  { id: "dibujar",          nombre: "Dibujar lo que siento",emoji: "🎨" },
-  { id: "objeto_querido",   nombre: "Abrazar mi peluche",   emoji: "🧸" }
+  { id: "respirar",         nombre: "Respirar hondo" },
+  { id: "abrazo_mariposa",  nombre: "Abrazo de mariposa" },
+  { id: "lugar_feliz",      nombre: "Mi lugar feliz" },
+  { id: "frase_amable",     nombre: "Decirme algo bueno" },
+  { id: "pedir_abrazo",     nombre: "Pedir un abrazo" },
+  { id: "contar_a_alguien", nombre: "Contarle a alguien" },
+  { id: "pedir_ayuda",      nombre: "Pedir ayuda" },
+  { id: "dibujar",          nombre: "Dibujar lo que siento" },
+  { id: "objeto_querido",   nombre: "Abrazar mi peluche" }
 ];
 
 /* ================================================================
@@ -304,15 +303,21 @@ function moverBarra() {
   dibujar();
 }
 
+/* Género de las ilustraciones: M/F si viene en la URL (?sex=M o ?sex=F,
+   según la ficha del paciente), si no, la variante neutral. */
+const GENERO = (() => {
+  const g = new URLSearchParams(location.search).get('sex');
+  return (g === 'M' || g === 'F') ? g : 'N';
+})();
+
 /* ------------------ ARMAR LAS ACTIVIDADES ------------------ */
 function renderActividades() {
   ACCIONES_MIEDO.forEach(accion => {
     const boton = document.createElement("button");
     boton.className = "opcion";
     boton.dataset.id = accion.id;
-    // El día de mañana, en vez del emoji, acá va: <img src="imagenes/.../ID.png">
     boton.innerHTML =
-      '<span class="opcion-img">' + accion.emoji + '</span>' +
+      '<span class="opcion-img"><img src="imagenes/' + accion.id + '-' + GENERO + '.png" alt=""></span>' +
       '<span class="opcion-txt">' + accion.nombre + '</span>';
     boton.addEventListener("click", () => elegirAyuda(accion.id));
     el.actividades.appendChild(boton);
