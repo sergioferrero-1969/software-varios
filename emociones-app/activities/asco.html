@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Actividad: Puaj o me gusta</title>
+
+
+<style>
+  :root {
+    --fondo:        #FFF6EC;
+    --tarjeta:      #FFFFFF;
+    --texto:        #3A2A22;
+    --texto-suave:  #8A7266;
+    --asco:         #7FAE3E;   /* verde del asco */
+    --gusto:        #E8799B;   /* rosado del "me gusta" */
+    --calma:        #1D9E75;
+    --calma-suave:  #E1F5EE;
+    --borde:        #F0E3D6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--fondo);
+    font-family: 'Nunito', sans-serif; color: var(--texto);
+    padding: 16px;
+  }
+  .tarjeta {
+    width: 100%; max-width: 460px;
+    background: var(--tarjeta);
+    border-radius: 28px; border: 2px solid var(--borde);
+    padding: 26px 22px 30px; text-align: center;
+  }
+  .titulo {
+    font-family: 'Fredoka', sans-serif; font-weight: 600;
+    font-size: 25px; margin: 0 0 6px;
+  }
+  .consigna {
+    font-size: 16px; color: var(--texto-suave);
+    margin: 0 0 8px; min-height: 44px; transition: color 0.3s;
+  }
+  .escena {
+    position: relative;
+    width: 260px; height: 260px; margin: 4px auto 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 12px;
+  }
+  .progreso {
+    position: absolute; top: 4px; right: 8px;
+    font-family: 'Fredoka', sans-serif; font-size: 13px; color: var(--texto-suave);
+  }
+  /* Caja donde aparece la cosa a puntuar (el color de fondo reacciona) */
+  .itemBox {
+    width: 150px; height: 150px; border-radius: 24px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 84px; line-height: 1;
+    background: #EFEAE0; transition: background 0.2s;
+  }
+  .itemBox img { width: 78%; height: 78%; object-fit: contain; }
+  .itemNombre { font-family: 'Fredoka', sans-serif; font-size: 16px; margin-top: -4px; }
+  .reaccion { display: flex; align-items: center; gap: 8px; }
+  .cara { font-size: 34px; line-height: 1; }
+  .palabra { font-family: 'Fredoka', sans-serif; font-size: 16px; color: var(--texto-suave); }
+
+  /* ----- Barra deslizante (empieza en el medio) ----- */
+  .nivel {
+    display: flex; align-items: center; gap: 10px;
+    max-width: 350px; margin: 12px auto 0;
+    font-family: 'Fredoka', sans-serif; font-size: 14px; color: var(--texto-suave);
+  }
+  .slider {
+    -webkit-appearance: none; appearance: none;
+    flex: 1; height: 16px; border-radius: 999px; outline: none; cursor: pointer;
+    background: linear-gradient(90deg, var(--asco), #E7E0D2 50%, var(--gusto));
+  }
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #fff; border: 5px solid #B7A98C;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.20); cursor: pointer;
+  }
+  .slider::-moz-range-thumb {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #fff; border: 5px solid #B7A98C;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.20); cursor: pointer;
+  }
+  .slider:disabled { opacity: 0.6; cursor: default; }
+
+  /* ----- Grilla de actividades (2da página) ----- */
+  .actividades {
+    display: none; grid-template-columns: repeat(2, 1fr);
+    gap: 10px; margin-top: 16px;
+  }
+  .actividades.visible { display: grid; }
+  .opcion {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    background: var(--calma-suave); border: 2px solid var(--calma-suave);
+    border-radius: 16px; padding: 12px 6px; cursor: pointer;
+    font-family: 'Fredoka', sans-serif; color: var(--texto);
+    transition: transform 0.1s, border-color 0.2s;
+  }
+  .opcion:hover  { border-color: var(--calma); }
+  .opcion:active { transform: scale(0.95); }
+  .opcion-img {
+    width: 56px; height: 56px; border-radius: 12px; background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; line-height: 1;
+  }
+  .opcion-img img { width: 100%; height: 100%; object-fit: contain; border-radius: 12px; }
+  .opcion-txt { font-size: 12px; color: var(--texto-suave); line-height: 1.15; }
+
+  .boton {
+    margin-top: 18px; font-family: 'Fredoka', sans-serif;
+    font-size: 18px; font-weight: 500; color: #fff;
+    background: var(--asco); border: none; border-radius: 999px;
+    padding: 14px 28px; cursor: pointer;
+    transition: filter 0.2s, transform 0.1s;
+  }
+  .boton:hover  { filter: brightness(0.95); }
+  .boton:active { transform: scale(0.96); }
+  .registro {
+    margin: 16px auto 0; font-size: 13px; color: var(--texto-suave);
+    font-family: 'Nunito', sans-serif;
+  }
+</style>
+</head>
+<body>
+
+  <div class="tarjeta">
+    <h1 class="titulo" id="titulo">¿Puaj o me gusta?</h1>
+    <p class="consigna" id="consigna">Movés la barrita según lo que sentís. No hay respuestas correctas.</p>
+
+    <div class="escena" id="escena">
+      <span class="progreso" id="progreso">1 / 5</span>
+      <div class="itemBox" id="itemBox">🥦</div>
+      <div class="itemNombre" id="itemNombre">Brócoli</div>
+      <div class="reaccion">
+        <span class="cara" id="cara">😐</span>
+        <span class="palabra" id="palabra">más o menos</span>
+      </div>
+    </div>
+
+    <div class="nivel">
+      <span>🤢 puaj</span>
+      <input type="range" class="slider" id="slider" min="0" max="10" step="0.1" value="5" aria-label="Cuánto asco o gusto">
+      <span>me gusta 😋</span>
+    </div>
+
+    <div class="actividades" id="actividades"></div>
+
+    <button class="boton" id="boton">Siguiente</button>
+
+    <p class="registro" id="registro">Se registra para Malen: puntuando cosas...</p>
+  </div>
+
+<script>
+/* ================================================================
+   CONFIGURACIÓN
+   ================================================================ */
+const ACTIVIDAD = {
+  emocion: "asco",
+  textos: {
+    inicioTitulo:   "¿Puaj o me gusta?",
+    inicioConsigna: "Movés la barrita según lo que sentís. No hay respuestas correctas.",
+    calmaTitulo:    "¿Qué te ayuda con el asco?",
+    calmaConsigna:  "El asco nos avisa y nos cuida. ¿Qué hacés cuando algo te da mucho puaj?",
+    cierreTitulo:   "¡Muy bien!",
+    cierreConsigna: "Reconocer qué te da asco también es cuidarte."
+  }
+};
+
+/* Las cosas a puntuar. El emoji es provisorio (después van los dibujos). */
+const ITEMS_ASCO = [
+  { id: "brocoli",   nombre: "Brócoli",       emoji: "🥦" },
+  { id: "gusano",    nombre: "Un bicho",      emoji: "🪱" },
+  { id: "media",     nombre: "Media sucia",   emoji: "🧦" },
+  { id: "pescado",   nombre: "Pescado",       emoji: "🐟" },
+  { id: "chocolate", nombre: "Chocolate",     emoji: "🍫" }
+];
+
+/* Las 4 herramientas para el asco. */
+const ACCIONES_ASCO = [
+  { id: "agua",            nombre: "Tomar agua",           emoji: "💧" },
+  { id: "lugar_tranquilo", nombre: "Un lugar tranquilo",   emoji: "🛋️" },
+  { id: "taparme_nariz",   nombre: "Taparme la nariz",     emoji: "👃" },
+  { id: "olor_rico",       nombre: "Pensar en un olor rico", emoji: "🌸" }
+];
+
+/* ================================================================
+   ESTADO
+   ================================================================ */
+const estado = {
+  fase: "sacar",
+  indice: 0,               // qué cosa está puntuando
+  valoraciones: [],        // resultados de cada cosa
+  queLoAyudo: null
+};
+
+const el = {
+  titulo:      document.getElementById("titulo"),
+  consigna:    document.getElementById("consigna"),
+  escena:      document.getElementById("escena"),
+  progreso:    document.getElementById("progreso"),
+  itemBox:     document.getElementById("itemBox"),
+  itemNombre:  document.getElementById("itemNombre"),
+  cara:        document.getElementById("cara"),
+  palabra:     document.getElementById("palabra"),
+  slider:      document.getElementById("slider"),
+  actividades: document.getElementById("actividades"),
+  boton:       document.getElementById("boton"),
+  registro:    document.getElementById("registro")
+};
+
+/* ================================================================
+   REACCIÓN Y COLOR SEGÚN LA PUNTUACIÓN
+   ================================================================ */
+function reaccionDe(v) {
+  if (v <= 1) return { cara: "🤢", palabra: "¡qué asco!" };
+  if (v <= 3) return { cara: "😖", palabra: "puaj" };
+  if (v <  7) return { cara: "😐", palabra: "más o menos" };
+  if (v <= 8) return { cara: "🙂", palabra: "me gusta" };
+  return          { cara: "😋", palabra: "¡me encanta!" };
+}
+function categoriaDe(v) {
+  if (v <= 3) return "puaj";
+  if (v >= 7) return "gusta";
+  return "neutral";
+}
+// El fondo de la caja pasa de verde (puaj) a neutro a rosado (me gusta)
+function tinte(v) {
+  const verde = [190,214,132], neutro = [239,234,224], rosa = [247,205,218];
+  let c;
+  if (v <= 5) { const p = v / 5;       c = verde.map((x,i)=> Math.round(x + (neutro[i]-x)*p)); }
+  else        { const p = (v - 5) / 5; c = neutro.map((x,i)=> Math.round(x + (rosa[i]-x)*p)); }
+  return "rgb(" + c[0] + "," + c[1] + "," + c[2] + ")";
+}
+
+function actualizarReaccion() {
+  const v = parseFloat(el.slider.value);
+  const r = reaccionDe(v);
+  el.cara.textContent = r.cara;
+  el.palabra.textContent = r.palabra;
+  el.itemBox.style.background = tinte(v);
+}
+
+/* ================================================================
+   MOSTRAR CADA COSA
+   ================================================================ */
+function mostrarItem() {
+  const item = ITEMS_ASCO[estado.indice];
+  el.itemBox.textContent = item.emoji;   // el día de mañana: <img src="...">
+  el.itemNombre.textContent = item.nombre;
+  el.progreso.textContent = (estado.indice + 1) + " / " + ITEMS_ASCO.length;
+  el.slider.value = 5;                    // ¡siempre arranca en el medio!
+  actualizarReaccion();
+  el.boton.textContent = (estado.indice === ITEMS_ASCO.length - 1) ? "Listo" : "Siguiente";
+}
+
+function siguiente() {
+  // Guarda la puntuación de la cosa actual
+  const item = ITEMS_ASCO[estado.indice];
+  const v = Math.round(parseFloat(el.slider.value));
+  estado.valoraciones.push({ id: item.id, nombre: item.nombre, valor: v, categoria: categoriaDe(v) });
+
+  if (estado.indice < ITEMS_ASCO.length - 1) {
+    estado.indice++;
+    mostrarItem();
+  } else {
+    pasarAAyudas();
+  }
+}
+
+/* ================================================================
+   ARMAR LAS ACTIVIDADES (2da página)
+   ================================================================ */
+const GENERO = (() => {
+  const g = new URLSearchParams(location.search).get('sex');
+  return (g === 'M' || g === 'F') ? g : 'N';
+})();
+function renderActividades() {
+  ACCIONES_ASCO.forEach(accion => {
+    const boton = document.createElement("button");
+    boton.className = "opcion";
+    boton.dataset.id = accion.id;
+    boton.innerHTML =
+      '<span class="opcion-img"><img src="imagenes/' + accion.id + '-' + GENERO + '.png" alt=""></span>' +
+      '<span class="opcion-txt">' + accion.nombre + '</span>';
+    boton.addEventListener("click", () => elegirAyuda(accion.id));
+    el.actividades.appendChild(boton);
+  });
+}
+
+/* ================================================================
+   FASE 2: QUÉ AYUDA CON EL ASCO
+   ================================================================ */
+function pasarAAyudas() {
+  estado.fase = "calma";
+  el.titulo.textContent   = ACTIVIDAD.textos.calmaTitulo;
+  el.consigna.textContent = ACTIVIDAD.textos.calmaConsigna;
+  el.escena.style.display = "none";      // ya no mostramos cosas
+  el.slider.parentElement.style.display = "none";
+  el.actividades.classList.add("visible");
+  el.boton.style.display = "none";
+
+  const puaj = estado.valoraciones.filter(x => x.categoria === "puaj").length;
+  el.registro.textContent = "Se registra para Malen: " + puaj + " cosas le dieron puaj";
+}
+
+/* ================================================================
+   FASE 3: CIERRE
+   ================================================================ */
+function elegirAyuda(id) {
+  if (estado.fase !== "calma") return;
+  const accion = ACCIONES_ASCO.find(a => a.id === id);
+  estado.queLoAyudo = accion ? accion.nombre : id;
+  estado.fase = "cierre";
+  el.titulo.textContent   = ACTIVIDAD.textos.cierreTitulo;
+  el.consigna.textContent = ACTIVIDAD.textos.cierreConsigna;
+  el.consigna.style.color = "var(--calma)";
+  el.actividades.classList.remove("visible");
+
+  const resultado = {
+    emocion: ACTIVIDAD.emocion,
+    valoraciones: estado.valoraciones,     // qué le da puaj y qué le gusta
+    queLoAyudo: id,
+    queLoAyudoNombre: estado.queLoAyudo,
+    fecha: new Date().toISOString()
+  };
+  console.log("Resultado de la sesión:", resultado);
+  if (window.parent !== window) { window.parent.postMessage(Object.assign({ type: "activity-complete" }, resultado), "*"); }
+  const puaj = estado.valoraciones.filter(x => x.categoria === "puaj").length;
+  el.registro.textContent =
+    "Guardado en la ficha: " + puaj + " cosas le dieron puaj · lo ayuda " +
+    resultado.queLoAyudoNombre.toLowerCase();
+}
+
+/* ================================================================
+   CONEXIONES Y ARRANQUE
+   ================================================================ */
+renderActividades();
+el.slider.addEventListener("input", actualizarReaccion);
+el.boton.addEventListener("click", siguiente);
+
+el.titulo.textContent   = ACTIVIDAD.textos.inicioTitulo;
+el.consigna.textContent = ACTIVIDAD.textos.inicioConsigna;
+mostrarItem();
+</script>
+</body>
+</html>

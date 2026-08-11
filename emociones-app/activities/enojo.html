@@ -265,21 +265,14 @@ const GENERO = (() => {
   return (g === 'M' || g === 'F') ? g : 'N';
 })();
 
-/* Acciones sin un recorte de imagen confiable todavía: se muestran
-   con un emoji de reserva hasta que llegue el archivo corregido. */
-const SIN_IMAGEN_CONFIABLE = { caminar: '🚶' };
-
 /* ------------------ ARMAR LAS ACTIVIDADES ------------------ */
 function renderActividades() {
   ACCIONES_ENOJO.forEach(accion => {
     const boton = document.createElement("button");
     boton.className = "opcion";
     boton.dataset.id = accion.id;
-    const emojiReserva = SIN_IMAGEN_CONFIABLE[accion.id];
     boton.innerHTML =
-      (emojiReserva
-        ? '<span class="opcion-img" style="font-size:32px;">' + emojiReserva + '</span>'
-        : '<span class="opcion-img"><img src="imagenes/' + accion.id + '-' + GENERO + '.png" alt=""></span>') +
+      '<span class="opcion-img"><img src="imagenes/' + accion.id + '-' + GENERO + '.png" alt=""></span>' +
       '<span class="opcion-txt">' + accion.nombre + '</span>';
     boton.addEventListener("click", () => elegirAyuda(accion.id));
     el.actividades.appendChild(boton);

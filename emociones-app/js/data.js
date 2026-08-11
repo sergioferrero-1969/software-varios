@@ -154,6 +154,7 @@ const ACTIVITIES = {
   tristeza: 'activities/tristeza.html',
   envidia: 'activities/envidia.html',
   alegria: 'activities/alegria.html',
+  asco: 'activities/asco.html',
 };
 
 function getActivity(emotionId) {
