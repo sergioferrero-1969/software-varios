@@ -152,6 +152,8 @@ const ACTIVITIES = {
   enojo: 'activities/enojo.html',
   miedo: 'activities/miedo.html',
   tristeza: 'activities/tristeza.html',
+  envidia: 'activities/envidia.html',
+  alegria: 'activities/alegria.html',
 };
 
 function getActivity(emotionId) {

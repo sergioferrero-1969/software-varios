@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Actividad: El baúl de juguetes</title>
+<style>
+  :root {
+    --fondo:#FFF6EC; --tarjeta:#FFFFFF; --texto:#3A2A22; --texto-suave:#8A7266;
+    --envidia:#5FA36A; --calma:#1D9E75; --calma-suave:#E1F5EE; --borde:#F0E3D6;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:var(--fondo); font-family:'Nunito',sans-serif; color:var(--texto); padding:16px; }
+  .tarjeta { width:100%; max-width:460px; background:var(--tarjeta);
+    border-radius:28px; border:2px solid var(--borde); padding:26px 22px 30px; text-align:center; }
+  .titulo { font-family:'Fredoka',sans-serif; font-weight:600; font-size:25px; margin:0 0 6px; }
+  .consigna { font-size:16px; color:var(--texto-suave); margin:0 0 6px; min-height:44px; transition:color .3s; }
+
+  .escena { position:relative; width:260px; height:260px; margin:4px auto 0;
+    background:#EAF0F6; border-radius:20px; overflow:hidden; user-select:none; }
+  .piso { position:absolute; left:0; right:0; bottom:0; height:46px; background:#E4D3B8; }
+
+  /* Encabezados: mismos, al mismo nivel arriba */
+  .headMio { position:absolute; top:10px; left:10px; width:112px; text-align:center;
+    font-family:'Fredoka',sans-serif; font-weight:500; font-size:14px; color:var(--texto-suave); line-height:1.15; }
+  .headVecino { position:absolute; top:10px; right:8px; width:126px; text-align:center;
+    font-family:'Fredoka',sans-serif; font-weight:500; font-size:14px; color:var(--texto-suave); line-height:1.15; }
+
+  .vecino { position:absolute; top:58px; right:24px; text-align:center; }
+  .vecino .jug { font-size:52px; line-height:1; filter:drop-shadow(0 0 6px #FFE38A); }
+
+  .miPila { position:absolute; left:12px; bottom:50px; width:132px; display:flex; flex-wrap:wrap-reverse; align-content:flex-start; gap:6px 8px; }
+  .miPila .toy { font-size:34px; line-height:1; animation:pop .3s ease; }
+  @keyframes pop { from{transform:scale(0);} to{transform:scale(1);} }
+
+  .baul { position:absolute; bottom:50px; left:158px; width:86px; pointer-events:none; }
+  .baul .tapa { width:90px; height:20px; margin-left:-2px; background:#C98B4A; border:2px solid #8A5628;
+    border-radius:8px; transform-origin:right bottom; transition:transform .18s ease; }
+  .baul.abierto .tapa { transform:rotate(46deg); }   /* bisagra derecha: abre hacia la izquierda */
+  .baul .cuerpo { width:86px; height:54px; margin-top:2px; background:#B9793E; border:2px solid #8A5628; border-radius:8px; position:relative; }
+  .baul .cerradura { position:absolute; left:50%; top:16px; transform:translateX(-50%); width:14px; height:14px; background:#E7C55A; border:2px solid #B8912F; border-radius:3px; }
+
+  .tapZone { position:absolute; inset:0; z-index:4; background:transparent; border:none; padding:0;
+    margin:0; cursor:pointer; -webkit-appearance:none; appearance:none; }
+
+  .burbuja { position:absolute; z-index:6; pointer-events:none; max-width:150px; text-align:center;
+    background:var(--bg,#fff); color:var(--texto); font-family:'Fredoka',sans-serif; line-height:1.2;
+    padding:8px 12px; border-radius:14px; border:2px solid var(--bd,#DDE6F0);
+    box-shadow:0 4px 12px rgba(60,90,60,.16); opacity:0; transform:translateY(8px) scale(.9);
+    transition:opacity .3s ease, transform .3s ease; }
+  .burbuja::after { content:""; position:absolute; left:22px; bottom:-8px; width:12px; height:12px;
+    background:var(--bg,#fff); border-right:2px solid var(--bd,#DDE6F0); border-bottom:2px solid var(--bd,#DDE6F0); transform:rotate(45deg); }
+  .burbuja.visible { opacity:1; transform:translateY(0) scale(1); }
+
+  .actividades { display:none; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:16px; }
+  .actividades.visible { display:grid; }
+  .opcion { display:flex; flex-direction:column; align-items:center; gap:6px; background:var(--calma-suave);
+    border:2px solid var(--calma-suave); border-radius:16px; padding:12px 6px; cursor:pointer;
+    font-family:'Fredoka',sans-serif; color:var(--texto); transition:transform .1s, border-color .2s; }
+  .opcion:hover { border-color:var(--calma); }
+  .opcion:active { transform:scale(.95); }
+  .opcion-img { width:56px; height:56px; border-radius:12px; background:#fff; display:flex;
+    align-items:center; justify-content:center; font-size:32px; line-height:1; }
+  .opcion-img img { width:100%; height:100%; object-fit:contain; border-radius:12px; }
+  .opcion-txt { font-size:12px; color:var(--texto-suave); line-height:1.15; }
+
+  .boton { margin-top:18px; font-family:'Fredoka',sans-serif; font-size:18px; font-weight:500; color:#fff;
+    background:var(--envidia); border:none; border-radius:999px; padding:14px 28px; cursor:pointer;
+    transition:filter .2s, transform .1s, opacity .2s; }
+  .boton:hover { filter:brightness(.95); }
+  .boton:active { transform:scale(.96); }
+  .boton:disabled { opacity:.45; cursor:default; }
+  .registro { margin:16px auto 0; font-size:13px; color:var(--texto-suave); font-family:'Nunito',sans-serif; }
+</style>
+</head>
+<body>
+  <div class="tarjeta">
+    <h1 class="titulo" id="titulo">El baúl de juguetes</h1>
+    <p class="consigna" id="consigna">A veces querés el juguete de otro, y está bien. Apretá TU baúl y mirá lo que sale.</p>
+
+    <div class="escena" id="escena">
+      <div class="piso"></div>
+      <div class="headMio">Mis juguetes</div>
+      <div class="headVecino">El juguete del vecino</div>
+      <div class="vecino"><div class="jug">🤖</div></div>
+      <div class="miPila" id="miPila"></div>
+      <div class="baul" id="baul"><div class="tapa"></div><div class="cuerpo"><div class="cerradura"></div></div></div>
+      <button class="tapZone" id="tapZone" type="button" aria-label="Apretar el baúl"></button>
+    </div>
+
+    <div class="actividades" id="actividades"></div>
+    <button class="boton" id="boton" disabled>Ya vi todo lo que tengo</button>
+    <p class="registro" id="registro">Se registra para Malen: mirando mi baúl...</p>
+  </div>
+
+<script>
+const ACTIVIDAD = {
+  emocion:"envidia",
+  textos:{
+    calmaTitulo:"¿Qué te ayuda con la envidia?",
+    calmaConsigna:"Elegí lo que te ayuda cuando querés lo que tiene otro.",
+    cierreTitulo:"¡Mirá todo lo que tenés!",
+    cierreConsigna:"Descubriste todo lo que tenés y elegiste algo que te ayuda."
+  }
+};
+const MIS_COSAS = [
+  { emoji:"🧸", msg:"¡Tu peluche!" }, { emoji:"⚽", msg:"¡Tu pelota!" },
+  { emoji:"🧱", msg:"¡Tus bloques!" }, { emoji:"❤️", msg:"Tu familia." },
+  { emoji:"🖍️", msg:"¡Tus crayones!" }, { emoji:"🌟", msg:"Lo que sabés hacer." }
+];
+const ACCIONES_ENVIDIA = [
+  { id:"moverme", nombre:"Moverme un poco", emoji:"🤸" },
+  { id:"entender_motivo", nombre:"Entender qué me pasó", emoji:"💡" },
+  { id:"no_soy_el_unico", nombre:"A todos les pasa", emoji:"👥" },
+  { id:"buscar_solucion", nombre:"Buscar una solución", emoji:"🧩" }
+];
+const estado = { fase:"sacar", sacados:0, queLoAyudo:null };
+const el = {
+  titulo:document.getElementById("titulo"), consigna:document.getElementById("consigna"),
+  escena:document.getElementById("escena"), baul:document.getElementById("baul"),
+  miPila:document.getElementById("miPila"), tapZone:document.getElementById("tapZone"),
+  actividades:document.getElementById("actividades"), boton:document.getElementById("boton"),
+  registro:document.getElementById("registro")
+};
+const TONOS = [ {bg:"#FFF3D6",bd:"#F0D79A"},{bg:"#E1F5EE",bd:"#A9E0CE"},{bg:"#EDE7FB",bd:"#C9BBF0"},{bg:"#FDE7EE",bd:"#F4B7CE"} ];
+function limpiarBurbujas(){ el.escena.querySelectorAll(".burbuja").forEach(b=>b.remove()); }
+function mostrarBurbuja(m){
+  limpiarBurbujas();
+  const b=document.createElement("div"); b.className="burbuja"; b.textContent=m;
+  const t=TONOS[Math.floor(Math.random()*TONOS.length)];
+  b.style.setProperty("--bg",t.bg); b.style.setProperty("--bd",t.bd);
+  b.style.fontSize=(12+Math.floor(Math.random()*5))+"px";
+  b.style.left=(6+Math.random()*32)+"%"; b.style.top=(4+Math.random()*20)+"%";
+  el.escena.appendChild(b); requestAnimationFrame(()=>b.classList.add("visible"));
+}
+function abrirBaul(){
+  if(estado.fase!=="sacar") return;
+  if(estado.sacados>=MIS_COSAS.length){ el.consigna.textContent="¡Ya sacaste todo! Tocá el botón de abajo."; return; }
+  const cosa=MIS_COSAS[estado.sacados];
+  const toy=document.createElement("span"); toy.className="toy"; toy.textContent=cosa.emoji;
+  el.miPila.appendChild(toy);
+  mostrarBurbuja(cosa.msg);
+  el.baul.classList.add("abierto"); setTimeout(()=>el.baul.classList.remove("abierto"),260);
+  estado.sacados++;
+  el.boton.disabled=false;
+  el.registro.textContent="Se registra para Malen: reconoció "+estado.sacados+" cosas suyas";
+}
+const GENERO = (() => {
+  const g = new URLSearchParams(location.search).get('sex');
+  return (g === 'M' || g === 'F') ? g : 'N';
+})();
+function renderActividades(){
+  ACCIONES_ENVIDIA.forEach(a=>{
+    const b=document.createElement("button"); b.className="opcion"; b.dataset.id=a.id;
+    b.innerHTML='<span class="opcion-img"><img src="imagenes/'+a.id+'-'+GENERO+'.png" alt=""></span><span class="opcion-txt">'+a.nombre+'</span>';
+    b.addEventListener("click",()=>elegirAyuda(a.id));
+    el.actividades.appendChild(b);
+  });
+}
+function pasarAElegir(){
+  if(estado.sacados===0) return;
+  estado.fase="calma"; limpiarBurbujas();
+  el.tapZone.style.display="none";
+  el.titulo.textContent=ACTIVIDAD.textos.calmaTitulo;
+  el.consigna.textContent=ACTIVIDAD.textos.calmaConsigna; el.consigna.style.color="var(--texto-suave)";
+  el.actividades.classList.add("visible");
+  el.boton.style.display="none";
+}
+function elegirAyuda(id){
+  if(estado.fase!=="calma") return;
+  const a=ACCIONES_ENVIDIA.find(x=>x.id===id);
+  estado.queLoAyudo=a?a.nombre:id; estado.fase="cierre";
+  el.titulo.textContent=ACTIVIDAD.textos.cierreTitulo;
+  el.consigna.textContent=ACTIVIDAD.textos.cierreConsigna; el.consigna.style.color="var(--calma)";
+  el.actividades.classList.remove("visible");
+  const resultado={emocion:"envidia",cosasReconocidas:estado.sacados,queLoAyudo:id,fecha:new Date().toISOString()};
+console.log("Resultado:",resultado);
+if (window.parent !== window) { window.parent.postMessage(Object.assign({ type: "activity-complete" }, resultado), "*"); }
+  el.registro.textContent="Guardado en la ficha: reconoció "+estado.sacados+" cosas suyas · lo ayuda "+estado.queLoAyudo.toLowerCase();
+}
+renderActividades();
+el.tapZone.addEventListener("click",abrirBaul);
+el.boton.addEventListener("click",pasarAElegir);
+</script>
+</body>
+</html>

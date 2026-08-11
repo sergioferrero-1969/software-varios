@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Actividad: Mi frasco de la alegría</title>
+
+
+<style>
+  :root {
+    --fondo:        #FFF6EC;
+    --tarjeta:      #FFFFFF;
+    --texto:        #3A2A22;
+    --texto-suave:  #8A7266;
+    --alegria:      #F2B02E;
+    --calma:        #1D9E75;
+    --calma-suave:  #FFF1D0;
+    --borde:        #F0E3D6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--fondo);
+    font-family: 'Nunito', sans-serif; color: var(--texto);
+    padding: 16px;
+  }
+  .tarjeta {
+    width: 100%; max-width: 460px;
+    background: var(--tarjeta);
+    border-radius: 28px; border: 2px solid var(--borde);
+    padding: 26px 22px 30px; text-align: center;
+  }
+  .titulo {
+    font-family: 'Fredoka', sans-serif; font-weight: 600;
+    font-size: 25px; margin: 0 0 6px;
+  }
+  .consigna {
+    font-size: 16px; color: var(--texto-suave);
+    margin: 0 0 6px; min-height: 44px; transition: color 0.3s;
+  }
+  .escena {
+    position: relative;
+    width: 260px; height: 260px; margin: 4px auto 0;
+    cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Burbujita (tonos y tamaños variados, se reemplazan) */
+  .burbuja {
+    position: absolute; z-index: 5; pointer-events: none;
+    max-width: 150px; text-align: center;
+    background: var(--bg, #fff); color: var(--texto);
+    font-family: 'Fredoka', sans-serif; line-height: 1.2;
+    padding: 8px 12px; border-radius: 14px;
+    border: 2px solid var(--bd, #DDE6F0);
+    box-shadow: 0 4px 12px rgba(120,90,40,0.16);
+    opacity: 0; transform: translateY(8px) scale(0.9);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .burbuja::after {
+    content: ""; position: absolute; left: 22px; bottom: -8px;
+    width: 12px; height: 12px; background: var(--bg, #fff);
+    border-right: 2px solid var(--bd, #DDE6F0);
+    border-bottom: 2px solid var(--bd, #DDE6F0);
+    transform: rotate(45deg);
+  }
+  .burbuja.visible { opacity: 1; transform: translateY(0) scale(1); }
+
+  /* ----- Opciones (2da página): qué hacer con la alegría ----- */
+  .actividades {
+    display: none; grid-template-columns: repeat(3, 1fr);
+    gap: 10px; margin-top: 16px;
+  }
+  .actividades.visible { display: grid; }
+  .opcion {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    background: var(--calma-suave); border: 2px solid var(--calma-suave);
+    border-radius: 16px; padding: 12px 6px; cursor: pointer;
+    font-family: 'Fredoka', sans-serif; color: var(--texto);
+    transition: transform 0.1s, border-color 0.2s;
+  }
+  .opcion:hover  { border-color: var(--alegria); }
+  .opcion:active { transform: scale(0.95); }
+  .opcion-img {
+    width: 56px; height: 56px; border-radius: 12px; background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; line-height: 1;
+  }
+  .opcion-txt { font-size: 12px; color: var(--texto-suave); line-height: 1.15; }
+
+  .boton {
+    margin-top: 18px; font-family: 'Fredoka', sans-serif;
+    font-size: 18px; font-weight: 500; color: #fff;
+    background: var(--alegria); border: none; border-radius: 999px;
+    padding: 14px 28px; cursor: pointer;
+    transition: filter 0.2s, transform 0.1s, opacity 0.2s;
+  }
+  .boton:hover  { filter: brightness(0.95); }
+  .boton:active { transform: scale(0.96); }
+  .boton:disabled { opacity: 0.45; cursor: default; }
+  .registro {
+    margin: 16px auto 0; font-size: 13px; color: var(--texto-suave);
+    font-family: 'Nunito', sans-serif;
+  }
+</style>
+</head>
+<body>
+
+  <div class="tarjeta">
+    <h1 class="titulo" id="titulo">Mi frasco de la alegría</h1>
+    <p class="consigna" id="consigna">Tocá el frasco y llenalo con cosas que te hacen feliz.</p>
+
+    <div class="escena" id="escena">
+      <svg viewBox="0 0 560 560" width="248" height="248" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="0" y="0" width="560" height="560" rx="26" fill="#FFF3D0"/>
+        <circle cx="470" cy="80" r="30" fill="#FFD45C"/>
+
+        <!-- Frasco -->
+        <rect x="210" y="196" width="140" height="16" rx="4" fill="#E9C25A"/>
+        <rect x="186" y="172" width="188" height="28" rx="8" fill="#E0B84C"/>
+        <!-- Cuerpo de vidrio -->
+        <rect x="182" y="210" width="196" height="240" rx="30" fill="#CFE6F5" opacity="0.5" stroke="#A6CBE4" stroke-width="5"/>
+        <rect x="200" y="230" width="18" height="150" rx="9" fill="#FFFFFF" opacity="0.5"/>
+
+        <!-- Cosas felices adentro -->
+        <g id="cosas"></g>
+      </svg>
+    </div>
+
+    <div class="actividades" id="actividades"></div>
+
+    <button class="boton" id="boton" disabled>Ya llené mi frasco</button>
+
+    <p class="registro" id="registro">Se registra para Malen: llenando el frasco...</p>
+  </div>
+
+<script>
+/* ================================================================
+   CONFIGURACIÓN
+   ================================================================ */
+const ACTIVIDAD = {
+  emocion: "alegria",
+  textos: {
+    inicioTitulo:   "Mi frasco de la alegría",
+    inicioConsigna: "Tocá el frasco y llenalo con cosas que te hacen feliz.",
+    elegirTitulo:   "¿Qué querés hacer con esta alegría?",
+    elegirConsigna: "Elegí una. La alegría también se puede cuidar."
+  }
+};
+
+/* Cosas que hacen feliz. El emoji es provisorio (después van los dibujos). */
+const COSAS_FELICES = [
+  { emoji: "❤️", msg: "Tu familia" },
+  { emoji: "🐶", msg: "Tu mascota" },
+  { emoji: "⚽", msg: "Jugar" },
+  { emoji: "🎵", msg: "La música" },
+  { emoji: "🤗", msg: "Un abrazo" },
+  { emoji: "👫", msg: "Tus amigos" },
+  { emoji: "🍦", msg: "Un helado" },
+  { emoji: "☀️", msg: "Un día lindo" }
+];
+
+/* Dónde caen dentro del frasco (de abajo hacia arriba) */
+const SLOTS = [
+  { x: 240, y: 415 }, { x: 285, y: 420 }, { x: 330, y: 415 },
+  { x: 235, y: 362 }, { x: 285, y: 368 }, { x: 335, y: 362 },
+  { x: 262, y: 312 }, { x: 308, y: 312 }
+];
+
+/* Qué hacer con la alegría (2da página, especial: no son "calmas") */
+const QUE_HACER = [
+  { id: "guardar",   nombre: "Guardarla para un día gris", emoji: "🫙", cierre: "Guardaste tu alegría para cuando la necesites." },
+  { id: "compartir", nombre: "Compartirla con alguien",    emoji: "🤝", cierre: "Compartir la alegría la hace más grande." },
+  { id: "disfrutar", nombre: "Disfrutarla ahora",          emoji: "🎉", cierre: "¡A disfrutar de este momento feliz!" }
+];
+
+/* ================================================================
+   ESTADO
+   ================================================================ */
+const estado = { fase: "sacar", puestas: 0, queHizo: null };
+
+const el = {
+  titulo:      document.getElementById("titulo"),
+  consigna:    document.getElementById("consigna"),
+  escena:      document.getElementById("escena"),
+  cosas:       document.getElementById("cosas"),
+  actividades: document.getElementById("actividades"),
+  boton:       document.getElementById("boton"),
+  registro:    document.getElementById("registro")
+};
+
+const SVGNS = "http://www.w3.org/2000/svg";
+const cosaElems = [];
+const BOCA = { x: 285, y: 210 };   // por dónde entran al frasco
+
+/* ================================================================
+   CREAR LAS COSAS (invisibles hasta que se tocan)
+   ================================================================ */
+function crearCosas() {
+  COSAS_FELICES.forEach(() => {
+    const t = document.createElementNS(SVGNS, "text");
+    t.setAttribute("font-size", 40);
+    t.setAttribute("text-anchor", "middle");
+    t.setAttribute("dominant-baseline", "central");
+    t.setAttribute("opacity", 0);
+    t.setAttribute("transform", "translate(" + BOCA.x + "," + BOCA.y + ") scale(0)");
+    el.cosas.appendChild(t);
+    cosaElems.push(t);
+  });
+}
+
+// La cosa cae desde la boca del frasco hasta su lugar
+function caer(t, cosa, slot) {
+  t.textContent = cosa.emoji;
+  let f = 0; const N = 18;
+  const sx = BOCA.x, sy = BOCA.y, ex = slot.x, ey = slot.y;
+  const iv = setInterval(() => {
+    f++; const p = f / N;
+    const x = sx + (ex - sx) * p;
+    const y = sy + (ey - sy) * (p * p);       // acelera al caer
+    const s = Math.min(1, 0.4 + p * 0.6);
+    t.setAttribute("opacity", Math.min(1, p * 2).toFixed(2));
+    t.setAttribute("transform", "translate(" + x.toFixed(1) + "," + y.toFixed(1) + ") scale(" + s.toFixed(2) + ")");
+    if (f >= N) {
+      clearInterval(iv);
+      t.setAttribute("opacity", 1);
+      t.setAttribute("transform", "translate(" + ex + "," + ey + ") scale(1)");
+    }
+  }, 20);
+}
+
+/* ================================================================
+   BURBUJAS
+   ================================================================ */
+const TONOS = [
+  { bg: "#FFF3D6", bd: "#F0D79A" }, { bg: "#FDE7EE", bd: "#F4B7CE" },
+  { bg: "#E1F5EE", bd: "#A9E0CE" }, { bg: "#E6F0FB", bd: "#B9D2F0" }
+];
+function limpiarBurbujas() {
+  el.escena.querySelectorAll(".burbuja").forEach(b => b.remove());
+}
+function mostrarBurbuja(mensaje) {
+  limpiarBurbujas();
+  const b = document.createElement("div");
+  b.className = "burbuja";
+  b.textContent = mensaje;
+  const tono = TONOS[Math.floor(Math.random() * TONOS.length)];
+  b.style.setProperty("--bg", tono.bg);
+  b.style.setProperty("--bd", tono.bd);
+  b.style.fontSize = (12 + Math.floor(Math.random() * 5)) + "px";
+  b.style.left = (6 + Math.random() * 44) + "%";
+  b.style.top  = (2 + Math.random() * 16) + "%";
+  el.escena.appendChild(b);
+  requestAnimationFrame(() => b.classList.add("visible"));
+}
+
+/* ================================================================
+   TOCAR EL FRASCO
+   ================================================================ */
+function agregarCosa() {
+  if (estado.fase !== "sacar") return;
+  if (estado.puestas >= cosaElems.length) return;
+  const cosa = COSAS_FELICES[estado.puestas];
+  caer(cosaElems[estado.puestas], cosa, SLOTS[estado.puestas]);
+  mostrarBurbuja(cosa.msg);
+  estado.puestas++;
+  el.boton.disabled = false;
+  el.registro.textContent = "Se registra para Malen: " + estado.puestas + " cosas que lo hacen feliz";
+}
+
+/* ================================================================
+   OPCIONES (2da página)
+   ================================================================ */
+/* Estas 3 opciones (guardar/compartir/disfrutar) todavía no tienen
+   dibujo M/F/N -distinto concepto al resto de las "acciones de calma"-,
+   así que por ahora se quedan con el emoji hasta que lleguen esas 9 imágenes. */
+function renderOpciones() {
+  QUE_HACER.forEach(op => {
+    const boton = document.createElement("button");
+    boton.className = "opcion";
+    boton.dataset.id = op.id;
+    boton.innerHTML =
+      '<span class="opcion-img">' + op.emoji + '</span>' +
+      '<span class="opcion-txt">' + op.nombre + '</span>';
+    boton.addEventListener("click", () => elegirQueHacer(op.id));
+    el.actividades.appendChild(boton);
+  });
+}
+
+function pasarAElegir() {
+  if (estado.puestas === 0) return;
+  estado.fase = "elegir";
+  limpiarBurbujas();
+  el.escena.style.cursor = "default";
+  el.titulo.textContent   = ACTIVIDAD.textos.elegirTitulo;
+  el.consigna.textContent = ACTIVIDAD.textos.elegirConsigna;
+  el.actividades.classList.add("visible");
+  el.boton.style.display  = "none";
+}
+
+/* ================================================================
+   CIERRE FESTIVO
+   ================================================================ */
+function elegirQueHacer(id) {
+  if (estado.fase !== "elegir") return;
+  const op = QUE_HACER.find(o => o.id === id);
+  estado.queHizo = op.id;
+  estado.fase = "cierre";
+  el.titulo.textContent   = "¡Qué lindo!";
+  el.consigna.textContent = op.cierre;
+  el.consigna.style.color = "var(--alegria)";
+  el.actividades.classList.remove("visible");
+  confeti();
+
+  const resultado = {
+    emocion: ACTIVIDAD.emocion,
+    cosasFelices: COSAS_FELICES.slice(0, estado.puestas).map(c => c.msg),
+    queHizo: op.id,
+    fecha: new Date().toISOString()
+  };
+  console.log("Resultado de la sesión:", resultado);
+  if (window.parent !== window) { window.parent.postMessage(Object.assign({ type: "activity-complete" }, resultado), "*"); }
+  el.registro.textContent =
+    "Guardado en la ficha: " + estado.puestas + " cosas felices · eligió " + op.nombre.toLowerCase();
+}
+
+// Lluvia cortita de festejo
+function confeti() {
+  const emojis = ["🎉", "✨", "🌟", "💛", "🎈"];
+  for (let i = 0; i < 14; i++) {
+    const s = document.createElement("span");
+    s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    s.style.position = "absolute";
+    s.style.left = (Math.random() * 90) + "%";
+    s.style.top = "-8%";
+    s.style.fontSize = (16 + Math.random() * 14) + "px";
+    s.style.zIndex = 6; s.style.pointerEvents = "none";
+    el.escena.appendChild(s);
+    let y = -8; const vy = 1.2 + Math.random() * 1.6;
+    const iv = setInterval(() => {
+      y += vy; s.style.top = y + "%";
+      if (y > 112) { clearInterval(iv); s.remove(); }
+    }, 40);
+  }
+}
+
+/* ================================================================
+   CONEXIONES Y ARRANQUE
+   ================================================================ */
+crearCosas();
+renderOpciones();
+el.escena.addEventListener("click", agregarCosa);
+el.boton.addEventListener("click", pasarAElegir);
+
+el.titulo.textContent   = ACTIVIDAD.textos.inicioTitulo;
+el.consigna.textContent = ACTIVIDAD.textos.inicioConsigna;
+</script>
+</body>
+</html>
