@@ -504,7 +504,10 @@ Screens.childActivity = (state) => {
   const patient = Store.getPatient(state.session.patientId);
   const sex = (patient && patient.sex) || '';
   const base = getActivity(state.session.answers.emotion);
-  const src = base + (sex ? '?sex=' + encodeURIComponent(sex) : '');
+  // Un "data:" URI (usado en la versión standalone con todo embebido) no
+  // admite query string: agregarle "?sex=..." lo rompe. En ese caso la
+  // actividad ya viene con la variante neutral embebida de antemano.
+  const src = (sex && !base.startsWith('data:')) ? base + '?sex=' + encodeURIComponent(sex) : base;
   return `
   <div class="screen screen-child screen-activity">
     <iframe class="activity-frame" src="${src}" title="Actividad de calma"></iframe>
